@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "properties": {
+    "gate_pass": {
+      "type": "boolean",
+      "description": "All three Gate conditions hold: a finite object settles it, checking a candidate terminates, and the candidate family is enumerable."
+    },
+    "finite_witness": {
+      "type": ["string", "null"],
+      "description": "The specific finite object you would go looking for. null when gate_pass is false."
+    },
+    "gate_reason": {
+      "type": "string",
+      "description": "Why the Gate passed or failed, referring to the three conditions."
+    },
+    "frontier_status": {
+      "type": "string",
+      "enum": ["known", "unknown"],
+      "description": "known ONLY if the supplied context states the boundary. Never from your own knowledge."
+    },
+    "frontier_quote": {
+      "type": ["string", "null"],
+      "description": "Text lifted verbatim from the context establishing the boundary. null when status is unknown."
+    },
+    "frontier_smallest_open": {
+      "type": ["string", "null"],
+      "description": "The smallest unresolved instance, as read from the quote."
+    },
+    "frontier_search_space": {
+      "type": ["string", "null"],
+      "description": "Rough size of the search at that boundary, as read from the quote."
+    },
+    "machinery_depth": {
+      "type": "string",
+      "enum": ["shallow", "moderate", "deep"]
+    },
+    "machinery_reason": { "type": "string" },
+    "quantifier_form": {
+      "type": "string",
+      "enum": ["universal", "existential", "mixed", "neither"]
+    },
+    "prior_computation": {
+      "type": "string",
+      "enum": ["none", "referenced", "available"]
+    },
+    "prior_computation_detail": { "type": ["string", "null"] },
+    "attention": {
+      "type": "string",
+      "enum": ["fresh", "some", "heavy"],
+      "description": "Evidenced by the context and attribution, not by the problem's fame."
+    },
+    "attention_reason": {
+      "type": "string",
+      "description": "Cite the specific evidence in the context."
+    },
+    "venue_signal": {
+      "type": "string",
+      "enum": ["none", "strong_venue", "top_four"]
+    },
+    "argument": {
+      "type": "string",
+      "description": "2-5 sentences: what object to look for, where to start, and the strongest reason this is a waste of a week."
+    }
+  },
+  "required": [
+    "gate_pass",
+    "finite_witness",
+    "gate_reason",
+    "frontier_status",
+    "frontier_quote",
+    "frontier_smallest_open",
+    "frontier_search_space",
+    "machinery_depth",
+    "machinery_reason",
+    "quantifier_form",
+    "prior_computation",
+    "prior_computation_detail",
+    "attention",
+    "attention_reason",
+    "venue_signal",
+    "argument"
+  ],
+  "additionalProperties": false
+}

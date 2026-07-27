@@ -1,0 +1,12 @@
+[project]
+name = "openmathproblemslab"
+version = "0.1.0"
+description = "A funnel from arXiv preprints to a short list of open problems worth attacking"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.116.0",
+    "pyyaml>=6.0",
+]
+
+[tool.ruff]
+line-length = 100

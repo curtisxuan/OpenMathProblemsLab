@@ -1,0 +1,125 @@
+{
+  "type": "object",
+  "properties": {
+    "open_problems_section": {
+      "type": "boolean",
+      "description": "Whether the paper has a section devoted to open problems or future work."
+    },
+    "extraction_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "low"
+      ],
+      "description": "low when the LaTeX was fragmentary, truncated, or hard to read."
+    },
+    "key_results": {
+      "type": "array",
+      "description": "Concrete objects and numeric bounds this paper establishes, one short line each. Quantitative only -- vertex counts, orders, thresholds, verified ranges, named constructed objects. These feed the Frontier axis at stage 2.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes_on_paper": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Why confidence is low, or anything else about the source as a whole."
+    },
+    "statements": {
+      "type": "array",
+      "description": "One entry per distinct open problem. Empty array if the paper states none.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "claim": {
+            "type": "string",
+            "description": "One sentence in plain prose stating what would settle THIS problem. Distinguishes Statements that share a verbatim sentence; two Statements with the same claim are the same problem."
+          },
+          "verbatim": {
+            "type": "string",
+            "description": "The problem statement copied from the source, LaTeX intact. Never paraphrased."
+          },
+          "context": {
+            "type": "string",
+            "description": "Surrounding text needed to interpret the statement. Copied, not summarised."
+          },
+          "location": {
+            "type": "string",
+            "description": "Where it sits, as a reader would cite it: 'Conjecture 1.2', 'Section 6, unnumbered'."
+          },
+          "environment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "LaTeX environment name if the statement is in one, else null."
+          },
+          "stated_as": {
+            "type": "string",
+            "enum": [
+              "open",
+              "partially_resolved",
+              "resolved_here",
+              "resolved_elsewhere"
+            ],
+            "description": "The paper's own claim about the problem's status."
+          },
+          "attribution_kind": {
+            "type": "string",
+            "enum": [
+              "original",
+              "attributed",
+              "folklore",
+              "unclear"
+            ],
+            "description": "Who this paper credits the problem to."
+          },
+          "attributed_to": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Name as it appears in THIS paper's text. null if the paper does not say. Never supplied from your own knowledge."
+          },
+          "attributed_citation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Citation as it appears in THIS paper's text, e.g. '[17]'. null if absent. Never supplied from your own knowledge."
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Ambiguities resolved, nearby partial results, or reasons for uncertainty."
+          }
+        },
+        "required": [
+          "claim",
+          "verbatim",
+          "context",
+          "location",
+          "environment",
+          "stated_as",
+          "attribution_kind",
+          "attributed_to",
+          "attributed_citation",
+          "notes"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "open_problems_section",
+    "extraction_confidence",
+    "key_results",
+    "notes_on_paper",
+    "statements"
+  ],
+  "additionalProperties": false
+}

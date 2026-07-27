@@ -1,0 +1,186 @@
+# Calibration Cases — SOURCE, git-tracked (ADR-0006).
+#
+# Conjectures whose real outcome is already known, run blind through the rubric
+# to test whether the Axes predict anything. Because Verdicts will not
+# accumulate (ADR-0007), this set carries the ENTIRE calibration load.
+#
+# Half should be positive controls (settled by explicit construction or
+# exhaustive search — the rubric should rate these highly) and half negative
+# controls (combinatorial-looking, decades old, still open — the rubric should
+# not). If the rubric files Hadwiger under "attack now", it is broken.
+#
+# EVERY case must carry an outcome_source that was actually checked. Do not
+# populate outcome_detail from recollection: a miscalibrated calibration set is
+# worse than none, because it launders a wrong rubric as a validated one.
+#
+# The entries below are CANDIDATES, deliberately left unverified and inactive.
+# Set `verified: true` and fill outcome_source only after checking the primary
+# reference. Loader skips anything with `verified: false`.
+
+cases:
+  # --- positive controls: settled by an explicit witness -------------------
+
+  - slug: keller-dimension-7
+    name: Keller's conjecture in dimension 7
+    statement: >-
+      In any tiling of R^7 by unit hypercubes, some two cubes share a
+      complete (n-1)-dimensional face.
+    known_outcome: settled_by_witness
+    outcome_detail: "TODO — reported settled via SAT solving c. 2020; verify authors, year, and direction of the result."
+    outcome_source: "TODO — cite the paper, not a recollection."
+    expected_gate_pass: 1
+    verified: false
+
+  - slug: pythagorean-triples-colouring
+    name: Boolean Pythagorean triples problem
+    statement: >-
+      Can {1, ..., n} be 2-coloured so that no monochromatic Pythagorean
+      triple a^2 + b^2 = c^2 exists?
+    known_outcome: settled_by_witness
+    outcome_detail: "TODO — reported settled by SAT c. 2016 with a critical n; verify n and authors."
+    outcome_source: "TODO"
+    expected_gate_pass: 1
+    verified: false
+
+  - slug: packing-chromatic-square-lattice
+    name: Packing chromatic number of the infinite square lattice
+    statement: >-
+      Determine the packing chromatic number of the infinite square grid.
+    known_outcome: settled_by_witness
+    outcome_detail: "TODO — reported settled by SAT c. 2023; verify the value and authors."
+    outcome_source: "TODO"
+    expected_gate_pass: 1
+    verified: false
+
+  - slug: sums-of-three-cubes-33-42
+    name: 33 and 42 as sums of three cubes
+    statement: >-
+      Find integers x, y, z with x^3 + y^3 + z^3 = k for k = 33 and k = 42.
+    known_outcome: settled_by_witness
+    outcome_detail: "TODO — reported settled by large-scale computation c. 2019; verify authors and solutions."
+    outcome_source: "TODO"
+    expected_gate_pass: 1
+    verified: false
+
+  # --- negative controls: combinatorial-looking and long resistant ---------
+
+  - slug: hadwiger
+    name: Hadwiger's conjecture
+    statement: >-
+      Every graph with no K_t minor is (t-1)-colourable.
+    known_outcome: open_resistant
+    outcome_detail: "TODO — open in general; verify which cases of t are settled."
+    outcome_source: "TODO"
+    expected_gate_pass: 0
+    verified: false
+
+  - slug: union-closed-sets
+    name: Frankl's union-closed sets conjecture
+    statement: >-
+      In any finite union-closed family of sets, some element belongs to at
+      least half the sets.
+    known_outcome: open_resistant
+    outcome_detail: "TODO — open; note there is recent partial progress via an entropy argument. Verify."
+    outcome_source: "TODO"
+    expected_gate_pass: 0
+    verified: false
+    notes: >-
+      Interesting boundary case. Small instances are exhaustively checkable, so
+      the Gate may well pass it — that is arguably correct. The Frontier axis is
+      what should mark it as out of reach, not the Gate. Watch this one.
+
+  - slug: sunflower
+    name: The sunflower conjecture
+    statement: >-
+      Every sufficiently large family of k-sets contains a sunflower with
+      three petals, with the bound C^k for some constant C.
+    known_outcome: open_resistant
+    outcome_detail: "TODO — open; verify the current best bound."
+    outcome_source: "TODO"
+    expected_gate_pass: 0
+    verified: false
+
+  - slug: rota-basis
+    name: Rota's basis conjecture
+    statement: >-
+      Given n bases of an n-dimensional vector space, the vectors can be
+      arranged in an n x n grid whose rows and columns are all bases.
+    known_outcome: open_resistant
+    outcome_detail: "TODO — open in general; verify which n are settled."
+    outcome_source: "TODO"
+    expected_gate_pass: 0
+    verified: false
+    notes: >-
+      Another boundary case: small n are finitely checkable, so the Gate should
+      pass it. Whether the rubric ranks it low depends on Frontier and Attention
+      doing their jobs. A good stress test of the "Gate is not the ranking" idea.
+
+  # --- gold-standard positive controls -------------------------------------
+  # Found while hand-checking the extraction prompt against a 20-paper sample.
+  # These two are the best controls in the set, for three reasons:
+  #   1. They are from our exact target categories (math.CO, algebraic combinatorics).
+  #   2. They were settled by explicit example — the shape the Gate is built to find.
+  #   3. They were settled BY A LANGUAGE MODEL searching for counterexamples,
+  #      which is the precise mechanism this project exists to aim.
+  # Both are verified against a primary source we have actually read, rather
+  # than recalled: arXiv:2607.21508v1, cached at cache/src/.
+  #
+  # These enable, for free, the retrospective backtest that was rejected as too
+  # expensive during design: run the rubric on each conjecture AS STATED BEFORE
+  # July 2026 and check whether it would have ranked them worth attacking. We
+  # know the answer. If the rubric says "deep machinery, heavy attention, skip",
+  # it is not merely uncalibrated — it is anti-predictive on the one case where
+  # the ground truth is unambiguous.
+
+  - slug: stanley-claw-free-s-positivity
+    name: Stanley's claw-free Schur-positivity conjecture
+    statement: >-
+      If G is claw-free, then the chromatic symmetric function X_G is
+      s-positive (expands with non-negative coefficients in the Schur basis).
+    known_outcome: settled_by_witness
+    outcome_detail: >-
+      FALSE. Refuted July 2026 by two explicit counterexamples: the line graphs
+      G_1 = L(H_1) and G_2 = L(H_2), each on 12 vertices (22 and 21 edges),
+      with [s_3333] X_G equal to -64 and -40 respectively. Line graphs are
+      claw-free, so both are counterexamples. Conjectured by Stanley in 1995.
+      The counterexamples were found by ChatGPT-5.6 Sol Pro, in a session of
+      roughly 83 minutes, partly using SAT solvers.
+    outcome_source: "arXiv:2607.21508v1, Matherne & Morales, sections 2 and 4"
+    expected_gate_pass: 1
+    verified: true
+    notes: >-
+      Expected axis profile before refutation: finite witness YES (a graph on
+      n vertices, checkable by computing one Schur expansion); quantifier form
+      UNIVERSAL, so one counterexample kills it; machinery MODERATE. Attention
+      was the trap — thirty years old with a large literature, which our
+      Attention axis reads as evidence against tractability. It was wrong here.
+      Watch whether the rubric over-weights Attention on this case.
+
+  - slug: monical-snp
+    name: Monical's SNP conjecture for chromatic symmetric functions
+    statement: >-
+      If X_G is s-positive, then X_G(x_1, ..., x_k) has saturated Newton
+      polytope (SNP) for every k.
+    known_outcome: settled_by_witness
+    outcome_detail: >-
+      FALSE. Refuted July 2026 by an explicit bipartite graph G_3 on 12
+      vertices with 19 edges: X_{G_3} is s-positive, yet proper colorings exist
+      of weight (6,6,0) and (8,2,2) but not of the average (7,4,1), so the
+      Newton polytope is unsaturated. Conjectured by Monical in 2018
+      (Conjecture 2.37 of her thesis). Found by ChatGPT-5.6 Sol Pro on the
+      first prompt, after roughly 37 minutes.
+    outcome_source: "arXiv:2607.21508v1, Matherne & Morales, sections 3 and 4"
+    expected_gate_pass: 1
+    verified: true
+    notes: >-
+      The single best test of the Frontier axis in the whole set. Prior work
+      (MMS, section 7.4) had established that any counterexample needs n >= 12
+      vertices, and the paper quotes this directly. That is exactly the kind of
+      paper-sourced Frontier claim ADR-0005 requires — a known lower bound that
+      says where to point a search. The search then succeeded at n = 12. If the
+      rubric records frontier_status 'known' with that quote and rates the
+      search space reachable, the axis is doing its job.
+
+  # --- from Pilot Attacks --------------------------------------------------
+  # Outcomes of manual attacks get appended here with from_pilot_attack: true.
+  # An attack that is run but not recorded evaporates (ADR-0007).

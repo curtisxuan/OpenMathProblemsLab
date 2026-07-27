@@ -1,0 +1,14 @@
+{
+  "_backtest_note": "Reconstruction of Monical's SNP conjecture AS IT STOOD BEFORE JULY 2026. Context is taken verbatim from the introduction of arXiv:2607.21508v1, with every forward reference to the refutation removed. Note that the context retains the prior-work statement that any counterexample needs n >= 12 vertices -- that is the Frontier quote this case exists to test. Known outcome: FALSE, refuted by an explicit 12-vertex bipartite graph found by an LLM in ~37 minutes. See judgment/calibration.yaml :: monical-snp.",
+  "calibration_slug": "monical-snp",
+
+  "claim": "Prove that whenever the chromatic symmetric function X_G is Schur positive, the polynomial X_G(x_1, ..., x_k) has saturated Newton polytope for every number of variables k.",
+
+  "verbatim": "If $X_G$ is $s$-positive, then $X_G(x_1,\\ldots,x_k)$ is SNP for any $k$.",
+
+  "context": "The Newton polytope of a polynomial $p({\\bf x}) \\in \\mathbb{R}[x_1,\\ldots,x_k]$ is the convex hull in $\\mathbb{R}^k$ of the support of $p$. The polynomial $p$ is said to be SNP (or have saturated Newton polytope) if its Newton polytope is saturated, i.e. if the support of $p$ is equal to the set of lattice points in the Newton polytope of $p$. The study of the SNP property of chromatic symmetric polynomials $X_G(x_1,\\ldots,x_k)$ started with work of Monical and Adve--Robichaux--Yong. A related conjecture is one due to Monical \\cite[Conjecture 2.37]{Mphd}.\n\nAlready for the claw $K_{1,3}$, we have that $X_{K_{1,3}}(x_1,x_2)=x_1^3x_2+x_2^3x_1$ is not SNP (since $(1,3)$ and $(3,1)$ are in the support but not the average $(2,2)$); however, $X_{K_{1,3}}$ is not $s$-positive. In \\cite[Theorem 5.8]{MMS}, the authors, together with Selover, verified Monical's conjecture for claw-free incomparability graphs and showed in \\cite[Example 7.5]{MMS} that a stronger notion than the SNP property called M-convexity does not hold for $s$-positive chromatic symmetric functions. We also showed that in order to test Monical's conjecture one needs to consider graphs with $n\\geq 12$ vertices (see \\cite[Section 7.4]{MMS}). This makes it hard to find a counterexample for Conjecture~\\ref{conj:monical M-convex}.\n\nAdve--Robichaux--Yong used computational complexity arguments of coloring of claw-free graphs to reveal a tension between Stanley's claw-free conjecture and this one. Namely, it is unlikely that both conjectures hold.",
+
+  "attribution": "attributed to Monical, cited as \\cite[Conjecture 2.37]{Mphd}; conjecture dates from 2018",
+
+  "paper_meta": "arXiv preprint, primary category math.CO; no journal venue of record"
+}
