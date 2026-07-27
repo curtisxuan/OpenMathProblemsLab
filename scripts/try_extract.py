@@ -267,6 +267,36 @@ def _strip_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
 
 
+def _repair_json(text: str) -> str:
+    """Double backslashes that are not legal JSON escapes.
+
+    The claude-cli backend has no schema enforcement, and mathematics papers are
+    almost entirely backslashes -- a verbatim LaTeX statement containing \alpha
+    or \{ is emitted as an invalid escape and json.loads rejects the whole
+    record. Legal escapes are " \\ / b f n r t and u+4hex; anything else gets
+    doubled so it survives as a literal backslash.
+    """
+    # Each escape must be CONSUMED, not looked ahead at. A lookahead leaves the
+    # second character of a valid \\ pair to be rescanned as the start of a new
+    # escape, so "\\valid" gets corrupted into "\\\valid". Note 'u' is excluded
+    # from the single-char class so that \umbral (invalid) is repaired while
+    # é (valid) is not.
+    return re.sub(
+        r'\\(?:(["\\/bfnrt])|u([0-9a-fA-F]{4})|(.)|$)',
+        lambda m: m.group(0) if (m.group(1) or m.group(2)) else "\\\\" + (m.group(3) or ""),
+        text,
+        flags=re.S,
+    )
+
+
+def _parse_json(text: str) -> dict:
+    body = _strip_fences(text)
+    try:
+        return json.loads(body)
+    except json.JSONDecodeError:
+        return json.loads(_repair_json(body))
+
+
 def run_claude_cli(prompt: str, model: str, timeout: int = 900) -> tuple[dict, dict]:
     """Execute via the authenticated Claude Code CLI.
 
@@ -295,7 +325,7 @@ def run_claude_cli(prompt: str, model: str, timeout: int = 900) -> tuple[dict, d
     envelope = json.loads(proc.stdout)
     if envelope.get("is_error"):
         raise RuntimeError(f"claude error: {envelope.get('result', '')[:400]}")
-    return json.loads(_strip_fences(envelope["result"])), {
+    return _parse_json(envelope["result"]), {
         "input_tokens": envelope["usage"]["input_tokens"],
         "output_tokens": envelope["usage"]["output_tokens"],
         "cost_usd": envelope.get("total_cost_usd"),

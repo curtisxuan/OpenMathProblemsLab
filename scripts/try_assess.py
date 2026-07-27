@@ -101,6 +101,37 @@ def build_prompt(problem: dict) -> str:
     )
 
 
+
+def _repair_json(text: str) -> str:
+    """Double backslashes that are not legal JSON escapes.
+
+    The claude-cli backend has no schema enforcement, and mathematics papers are
+    almost entirely backslashes -- a verbatim LaTeX statement containing \alpha
+    or \{ is emitted as an invalid escape and json.loads rejects the whole
+    record. Legal escapes are " \\ / b f n r t and u+4hex; anything else gets
+    doubled so it survives as a literal backslash.
+    """
+    # Each escape must be CONSUMED, not looked ahead at. A lookahead leaves the
+    # second character of a valid \\ pair to be rescanned as the start of a new
+    # escape, so "\\valid" gets corrupted into "\\\valid". Note 'u' is excluded
+    # from the single-char class so that \umbral (invalid) is repaired while
+    # é (valid) is not.
+    return re.sub(
+        r'\\(?:(["\\/bfnrt])|u([0-9a-fA-F]{4})|(.)|$)',
+        lambda m: m.group(0) if (m.group(1) or m.group(2)) else "\\\\" + (m.group(3) or ""),
+        text,
+        flags=re.S,
+    )
+
+
+def _parse_json(text: str) -> dict:
+    body = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
+    try:
+        return json.loads(body)
+    except json.JSONDecodeError:
+        return json.loads(_repair_json(body))
+
+
 def run_claude_cli(prompt: str, model: str, timeout: int = 1200) -> tuple[dict, dict]:
     proc = subprocess.run(
         ["claude", "-p", "--model", model,
@@ -114,8 +145,7 @@ def run_claude_cli(prompt: str, model: str, timeout: int = 1200) -> tuple[dict, 
     env = json.loads(proc.stdout)
     if env.get("is_error"):
         raise RuntimeError(f"claude error: {env.get('result','')[:400]}")
-    body = re.sub(r"^```(?:json)?\s*|\s*```$", "", env["result"].strip())
-    return json.loads(body), {"cost_usd": env.get("total_cost_usd"),
+    return _parse_json(env["result"]), {"cost_usd": env.get("total_cost_usd"),
                               "output_tokens": env["usage"]["output_tokens"]}
 
 
