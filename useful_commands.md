@@ -70,6 +70,22 @@ statement. **Measured: ~$0.07 and 15–80s per paper, on Haiku 4.5.**
 
 The four target categories are `math.CO`, `math.AC`, `math.RT`, `math.GR`.
 
+### Bulk-harvest a date range
+
+```sh
+# list what's there (no inference, no cost)
+.venv/bin/python scripts/try_extract.py --harvest 2026-06-01:2026-06-30
+
+# ...and actually extract all of it
+.venv/bin/python scripts/try_extract.py --harvest 2026-06-01:2026-06-30 --extract-all
+```
+
+Uses OAI-PMH, which handles date ranges properly and is not throttled the way
+the query API is ([ADR-0009](docs/adr/0009-avoid-the-arxiv-query-api.md)).
+Defaults to the four target categories; override with
+`--categories math.CO,math.AC`. Always run it without `--extract-all` first to
+see the paper count before committing to the inference.
+
 ### Specific papers
 
 ```sh
@@ -136,11 +152,26 @@ print('all parse')"
 
 ## Troubleshooting
 
-**`HTTP Error 429` from arXiv.** You are being throttled. The fetcher now
-enforces a 3-second gap, honours `Retry-After`, and backs off exponentially over
-5 attempts — but a burst of earlier requests can leave you throttled for several
-minutes. Wait it out, or work from cached sources by passing explicit arXiv IDs
-instead of `--recent`.
+**`HTTP Error 429` from arXiv.** Almost certainly not your fault, and waiting
+may not help. `export.arxiv.org/api/query` is chronically congested — it has
+been observed returning 429 for over an hour, taking 46 seconds per rejection.
+We no longer use it: `--recent` reads the HTML listing page and `--harvest` uses
+OAI-PMH, neither of which was affected during that outage
+([ADR-0009](docs/adr/0009-avoid-the-arxiv-query-api.md)).
+
+If you still see 429s, check which host is failing:
+
+```sh
+curl -s -o /dev/null -w "query-api  %{http_code} in %{time_total}s\n" \
+  "https://export.arxiv.org/api/query?search_query=cat:math.CO&max_results=1"
+curl -s -o /dev/null -w "listing    %{http_code} in %{time_total}s\n" \
+  "https://arxiv.org/list/math.CO/recent"
+curl -s -o /dev/null -w "oai-pmh    %{http_code} in %{time_total}s\n" \
+  "https://export.arxiv.org/oai2?verb=Identify"
+```
+
+A slow 429 means congestion, not a penalty. Cached papers always work: pass
+explicit IDs (`ls cache/src/`) instead of `--recent`.
 
 **`claude exited 1`.** Check `claude -p "hi"` works on its own. The scripts pass
 `--tools` with no arguments and `--exclude-dynamic-system-prompt-sections` to
