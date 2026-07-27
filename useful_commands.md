@@ -31,6 +31,10 @@ before July 2026. This is the regression test for the rubric.
 Compares each Gate verdict against `judgment/calibration.yaml` and prints
 `✓ MATCHES` / `✗ MISMATCH`. **Measured: ~$0.19, about 2 minutes, on Opus 5.**
 
+For how to interpret what comes back — the reading order, which fields to
+distrust, and the known failure modes — see
+[docs/reading-an-assessment.md](docs/reading-an-assessment.md).
+
 Re-run this after any edit to `prompts/assess.md`.
 
 ### Assess whatever stage 1 found
