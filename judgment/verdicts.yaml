@@ -1,0 +1,30 @@
+# Verdicts — SOURCE, git-tracked (ADR-0006).
+#
+# A human's judgment of a Conjecture, in the SAME axis shape as a machine
+# Assessment so the two can be set against each other. This is an affordance,
+# not an expected workflow (ADR-0007) — nobody reviews every Conjecture. Record
+# one when you have an opinion worth keeping, particularly when you disagree
+# with the Assessment.
+#
+# The pipeline NEVER writes here. That is the point: a re-run cannot clobber a
+# judgment you cannot reconstruct.
+#
+# Every axis is optional. Recording only `gate_pass: 0` with a one-line note
+# saying why the Gate was wrong is a perfectly good entry.
+#
+# Shape:
+#
+# verdicts:
+#   - conjecture: <canonical_name, or the dedup_key from the digest>
+#     author: curtis
+#     recorded_at: 2026-08-01
+#     gate_pass: 1                # 0 | 1
+#     frontier_status: known      # known | unknown
+#     machinery_depth: shallow    # shallow | moderate | deep
+#     quantifier_form: universal  # universal | existential | mixed | neither
+#     prior_computation: available # none | referenced | available
+#     attention: fresh            # fresh | some | heavy
+#     notes: >-
+#       Free text. The most valuable field — why the machine was wrong.
+
+verdicts: []
