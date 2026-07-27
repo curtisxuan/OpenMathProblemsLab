@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import html as _html
 import io
 import json
 import re
@@ -119,19 +120,81 @@ def _entries(xml: str) -> list[dict]:
 
 
 def recent(category: str, count: int) -> list[dict]:
-    """One API call returning ids AND titles, so there is no per-paper lookup."""
-    url = "https://export.arxiv.org/api/query?" + urllib.parse.urlencode(
-        {
-            "search_query": f"cat:{category}",
-            "sortBy": "submittedDate",
-            "sortOrder": "descending",
-            "max_results": count,
-        }
+    """Most recent papers in a category, with titles.
+
+    Uses the HTML listing page rather than export.arxiv.org/api/query. The query
+    API is chronically overloaded -- it has been observed taking 46 seconds to
+    return "Rate exceeded" -- while the listing page answers in ~50ms and gives
+    us ids and titles in one request. Both live on different hosts, so a query
+    API outage does not affect this path.
+    """
+    html = fetch(
+        f"https://arxiv.org/list/{category}/recent?skip=0&show={max(count, 50)}"
+    ).decode("utf-8", "replace")
+
+    ids = re.findall(r'href="/pdf/(\d{4}\.\d{4,5})', html)
+    titles = re.findall(
+        r"<div class='list-title mathjax'>"
+        r"<span class='descriptor'>Title:</span>\s*(.*?)\s*</div>",
+        html, re.S,
     )
-    entries = _entries(fetch(url).decode())
-    for e in entries:
-        _cache_meta(e["arxiv_id"], e)
+    entries, seen = [], set()
+    for i, arxiv_id in enumerate(ids):
+        if arxiv_id in seen:
+            continue
+        seen.add(arxiv_id)
+        title = (_html.unescape(re.sub(r"\s+", " ", titles[i])).strip()
+                 if i < len(titles) else "(unknown)")
+        entry = {"arxiv_id": arxiv_id, "title": title}
+        _cache_meta(arxiv_id, entry)
+        entries.append(entry)
+        if len(entries) >= count:
+            break
     return entries
+
+
+def harvest(categories: list[str], date_from: str, date_until: str) -> list[dict]:
+    """Bulk-harvest a date range over OAI-PMH -- the real corpus path.
+
+    OAI-PMH is the interface arXiv actually intends for harvesting, and unlike
+    /api/query it is not throttled: one day of the whole `math` set returns ~476
+    records in about five seconds. Handles resumption tokens for longer ranges.
+
+    Note OAI filters on DATESTAMP, not submission date, so a range includes
+    revisions of much older papers. We keep only ids whose YYMM prefix falls in
+    the requested months, which is what "papers from June 2026" actually means.
+    """
+    base = "https://export.arxiv.org/oai2"
+    params = {"verb": "ListRecords", "set": "math", "metadataPrefix": "arXiv",
+              "from": date_from, "until": date_until}
+    wanted = set(categories)
+    months = {f"{d[2:4]}{d[5:7]}" for d in (date_from, date_until)}
+    out, token = [], None
+
+    while True:
+        query = {"verb": "ListRecords", "resumptionToken": token} if token else params
+        xml = fetch(f"{base}?{urllib.parse.urlencode(query)}").decode("utf-8", "replace")
+
+        for rec in re.findall(r"<record>(.*?)</record>", xml, re.S):
+            def field(tag: str) -> str:
+                m = re.search(rf"<{tag}>(.*?)</{tag}>", rec, re.S)
+                return _html.unescape(re.sub(r"\s+", " ", m.group(1))).strip() if m else ""
+
+            arxiv_id, cats = field("id"), field("categories").split()
+            if not arxiv_id or arxiv_id[:4] not in months:
+                continue  # a revision of an older paper, not a submission
+            if not wanted.intersection(cats):
+                continue
+            entry = {"arxiv_id": arxiv_id, "title": field("title"),
+                     "categories": cats, "created": field("created")}
+            _cache_meta(arxiv_id, entry)
+            out.append(entry)
+
+        m = re.search(r"<resumptionToken[^>]*>([^<]+)</resumptionToken>", xml)
+        token = m.group(1) if m else None
+        print(f"  .. harvested {len(out)} matching papers", file=sys.stderr)
+        if not token:
+            return out
 
 
 def _meta_path(arxiv_id: str) -> Path:
@@ -204,6 +267,36 @@ def _strip_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
 
 
+def _repair_json(text: str) -> str:
+    """Double backslashes that are not legal JSON escapes.
+
+    The claude-cli backend has no schema enforcement, and mathematics papers are
+    almost entirely backslashes -- a verbatim LaTeX statement containing \alpha
+    or \{ is emitted as an invalid escape and json.loads rejects the whole
+    record. Legal escapes are " \\ / b f n r t and u+4hex; anything else gets
+    doubled so it survives as a literal backslash.
+    """
+    # Each escape must be CONSUMED, not looked ahead at. A lookahead leaves the
+    # second character of a valid \\ pair to be rescanned as the start of a new
+    # escape, so "\\valid" gets corrupted into "\\\valid". Note 'u' is excluded
+    # from the single-char class so that \umbral (invalid) is repaired while
+    # é (valid) is not.
+    return re.sub(
+        r'\\(?:(["\\/bfnrt])|u([0-9a-fA-F]{4})|(.)|$)',
+        lambda m: m.group(0) if (m.group(1) or m.group(2)) else "\\\\" + (m.group(3) or ""),
+        text,
+        flags=re.S,
+    )
+
+
+def _parse_json(text: str) -> dict:
+    body = _strip_fences(text)
+    try:
+        return json.loads(body)
+    except json.JSONDecodeError:
+        return json.loads(_repair_json(body))
+
+
 def run_claude_cli(prompt: str, model: str, timeout: int = 900) -> tuple[dict, dict]:
     """Execute via the authenticated Claude Code CLI.
 
@@ -232,7 +325,7 @@ def run_claude_cli(prompt: str, model: str, timeout: int = 900) -> tuple[dict, d
     envelope = json.loads(proc.stdout)
     if envelope.get("is_error"):
         raise RuntimeError(f"claude error: {envelope.get('result', '')[:400]}")
-    return json.loads(_strip_fences(envelope["result"])), {
+    return _parse_json(envelope["result"]), {
         "input_tokens": envelope["usage"]["input_tokens"],
         "output_tokens": envelope["usage"]["output_tokens"],
         "cost_usd": envelope.get("total_cost_usd"),
@@ -265,6 +358,13 @@ def main() -> int:
     ap.add_argument("ids", nargs="*", help="arXiv IDs, e.g. 2607.21466v1")
     ap.add_argument("--recent", type=int, help="instead, take the N most recent papers")
     ap.add_argument("--category", default="math.CO")
+    ap.add_argument("--harvest", metavar="FROM:UNTIL",
+                    help="bulk-harvest a date range over OAI-PMH, e.g. 2026-06-01:2026-06-30. "
+                         "Lists what it finds and exits unless --extract-all is given.")
+    ap.add_argument("--categories", default="math.CO,math.AC,math.RT,math.GR",
+                    help="categories to keep when harvesting")
+    ap.add_argument("--extract-all", action="store_true",
+                    help="with --harvest, actually run extraction over everything found")
     ap.add_argument("--backend", choices=["claude-cli", "api"], default="claude-cli")
     ap.add_argument("--model", default=None, help="default: 'haiku' (cli) / 'claude-haiku-4-5' (api)")
     ap.add_argument("--show", action="store_true", help="print each claim inline")
@@ -275,8 +375,21 @@ def main() -> int:
         papers = [{"arxiv_id": i} for i in args.ids]
     elif args.recent:
         papers = recent(args.category, args.recent)
+    elif args.harvest:
+        date_from, _, date_until = args.harvest.partition(":")
+        papers = harvest([c.strip() for c in args.categories.split(",")],
+                         date_from, date_until)
+        print(f"\n{len(papers)} papers in {args.categories} "
+              f"submitted {date_from}..{date_until}")
+        if not args.extract_all:
+            for p in papers[:20]:
+                print(f"  {p['arxiv_id']}  {p['title'][:70]}")
+            if len(papers) > 20:
+                print(f"  ... and {len(papers) - 20} more")
+            print("\nAdd --extract-all to run extraction over these.")
+            return 0
     else:
-        ap.error("give some arXiv IDs or --recent N")
+        ap.error("give some arXiv IDs, --recent N, or --harvest FROM:UNTIL")
 
     OUT.mkdir(parents=True, exist_ok=True)
     totals = {"papers": 0, "statements": 0, "open": 0, "cost": 0.0, "seconds": 0.0}
