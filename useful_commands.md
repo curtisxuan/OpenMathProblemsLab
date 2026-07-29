@@ -101,6 +101,22 @@ traffic. `2607.21508v1` is the ground-truth paper (5 statements expected) and
 `2607.21222v1` is the negative control (0 statements expected) — a quick
 regression check after editing `prompts/extract.md`.
 
+### Browse everything extracted so far
+
+```sh
+.venv/bin/python scripts/statements.py                    # all statements
+.venv/bin/python scripts/statements.py --open             # only what's still open
+.venv/bin/python scripts/statements.py --open --full      # with verbatim + context
+.venv/bin/python scripts/statements.py --paper 2607.26049 # one paper
+.venv/bin/python scripts/statements.py --attributed       # credited to someone else
+.venv/bin/python scripts/statements.py --stale            # older prompt version
+.venv/bin/python scripts/statements.py --open --json      # for piping
+```
+
+Calls no model — reads `cache/extractions/` only. Prints a per-status and
+per-attribution breakdown, and warns when any paper was extracted by a prompt
+version other than the current one.
+
 ### Inspect a full record
 
 ```sh

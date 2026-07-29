@@ -189,8 +189,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="*", type=Path)
-    ap.add_argument("--from-extraction", type=Path,
-                    help="assess every open statement in a stage-1 extraction file")
+    ap.add_argument("--from-extraction", type=Path, nargs="+", metavar="FILE",
+                    help="assess every open statement in one or more stage-1 extraction "
+                         "files; accepts a glob, e.g. cache/extractions/*.json")
     ap.add_argument("--backend", choices=["claude-cli", "api"], default="claude-cli")
     ap.add_argument("--model", default=None, help="default: 'opus' (cli) / 'claude-opus-5' (api)")
     args = ap.parse_args()
@@ -200,8 +201,8 @@ def main() -> int:
     problems: list[tuple[str, dict]] = []
     for path in args.files:
         problems.append((path.stem, json.loads(path.read_text())))
-    if args.from_extraction:
-        doc = json.loads(args.from_extraction.read_text())
+    for extraction in args.from_extraction or []:
+        doc = json.loads(extraction.read_text())
         meta = doc.get("_meta", {})
         for i, s in enumerate(doc["statements"], 1):
             if s["stated_as"] != "open":
