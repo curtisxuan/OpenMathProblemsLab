@@ -3,6 +3,10 @@
 All commands assume the repo root as the working directory. Costs and timings
 below are measured, not estimated.
 
+For a guided validation run in the right order, see
+[docs/end-to-end-walkthrough.md](docs/end-to-end-walkthrough.md). This file is
+the command reference.
+
 ## Setup
 
 ```sh
