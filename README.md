@@ -88,6 +88,7 @@ backends, and troubleshooting.
 | Path | |
 |---|---|
 | [`CONTEXT.md`](CONTEXT.md) | The ubiquitous language. **Read this first.** |
+| [`docs/end-to-end-walkthrough.md`](docs/end-to-end-walkthrough.md) | Ordered validation run — **start here to see it work** |
 | [`docs/reading-an-assessment.md`](docs/reading-an-assessment.md) | How to read the output and which fields to distrust |
 | [`docs/adr/`](docs/adr/) | Why the design is the way it is |
 | `prompts/` | The extraction and assessment prompts, and their schemas |
