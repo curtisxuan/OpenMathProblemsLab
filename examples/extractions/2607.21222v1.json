@@ -1,0 +1,26 @@
+{
+  "open_problems_section": false,
+  "extraction_confidence": "high",
+  "key_results": [
+    "Improves structural bound for k-connected subgraphs in dense K_t-minor-free graphs from O(t log^3 t) to O(t log^2 t) vertices",
+    "Reduces order bound in Delcourt-Postle reduction from O(t log^4 t) to O(t log^3 t)",
+    "Proves every K_t-minor-free graph G with d(G) \u2265 Ck contains a nonempty k-connected subgraph H with v(H) \u2264 C^2 t log^2 t"
+  ],
+  "notes_on_paper": "Clean, well-formatted paper with no structural issues. The paper mentions Hadwiger's conjecture as background motivation for prior work by Delcourt and Postle, but never states the conjecture itself or poses it as an open problem within this paper. This is purely a result paper that improves existing bounds through a technical proof.",
+  "statements": [],
+  "_meta": {
+    "arxiv_id": "2607.21222v1",
+    "title": "An $O(t\\log^2 t)$ Bound for $k$-Connected Subgraphs in Dense $K_t$-Minor-Free Graphs",
+    "backend": "claude-cli",
+    "model": "haiku",
+    "prompt_sha256": "ca10acaac889",
+    "tex_chars": 17648,
+    "tex_truncated": false,
+    "usage": {
+      "input_tokens": 9,
+      "output_tokens": 2134,
+      "cost_usd": 0.051097000000000004
+    },
+    "seconds": 21.3
+  }
+}

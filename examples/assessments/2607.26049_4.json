@@ -1,0 +1,28 @@
+{
+  "gate_pass": false,
+  "finite_witness": null,
+  "gate_reason": "The claim is asymptotic: it asserts existence of a constant C with every n-vertex graph decomposing into at most Cn cycles and edges. No single finite graph can refute that (any finite example needs only finitely many cycles, so it is consistent with every large C), and no finite object can establish it either, since the content is a growth rate over an infinite family. Condition 2 holds in isolation - given a graph and a claimed decomposition, verifying it is trivial, and even computing the minimum number of cycles-plus-edges is a finite (if expensive) search - but condition 1 fails: there is no specific finite object whose existence or absence resolves the problem or constitutes genuine partial progress. A superlinear lower-bound construction would have to be a parameterised infinite family with a growth argument, and one new small member of such a family would say nothing, since the known extremal examples (e.g. dense graphs of high girth) already give the linear lower order and the gap is a log*-factor invisible at any computable scale.",
+  "frontier_status": "unknown",
+  "frontier_quote": null,
+  "frontier_smallest_open": null,
+  "frontier_search_space": null,
+  "machinery_depth": "deep",
+  "machinery_reason": "The statement is elementary, but every route to progress described in the context runs through sublinear expander theory: expander extraction, adjusting-path arguments, and the Conlon-Fox-Sudakov and Bucic-Montgomery machinery. The context frames the whole survey as being about absorbing that programme, and explicitly discusses why 'memoryless iterative decomposition' caps out at O(n log*n), which is a structural insight requiring the full framework.",
+  "quantifier_form": "mixed",
+  "prior_computation": "none",
+  "prior_computation_detail": null,
+  "attention": "heavy",
+  "attention_reason": "Context records a 1966 attribution to Erdos and Gallai, a naive O(n log n) bound that 'stood for nearly 50 years', Conlon, Fox and Sudakov's O(n log log n) in 2014, Bucic and Montgomery's O(n log*n) in 2024, and notes inclusion 'in many problem collections'. All described work is analytic; no computational search of any kind is mentioned, so the heavy attention is on proof technique, not on exhausting small cases.",
+  "venue_signal": "none",
+  "argument": "There is nothing finite to go looking for here. The conjecture asserts a growth rate - some constant C works for all n - so a computer search over graphs on 10 or 14 vertices cannot separate O(n) from O(n log*n), and indeed log*n is under 5 for every n a machine will ever enumerate, meaning the entire gap between the best known bound and the conjecture is invisible at computable scale. The only object-flavoured targets nearby are the wrong shape: a superlinear lower-bound family (an infinite parameterised construction plus an asymptotic argument, not a witness), or a gadget certifying the memoryless-iteration barrier the paper alludes to, which bounds a proof technique rather than the conjecture. Someone wanting a computational entry point into this circle of ideas should look instead at the exact-constant versions - Hajos-type bounds on cycle decompositions of even graphs - where a single finite counterexample genuinely does settle a universal claim.",
+  "_meta": {
+    "name": "2607.26049#4",
+    "model": "opus",
+    "backend": "claude-cli",
+    "seconds": 31.5,
+    "usage": {
+      "cost_usd": 0.133239,
+      "output_tokens": 2113
+    }
+  }
+}

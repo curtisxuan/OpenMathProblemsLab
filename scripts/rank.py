@@ -41,8 +41,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ASSESSMENTS = ROOT / "cache" / "assessments"
-EXTRACTIONS = ROOT / "cache" / "extractions"
+def _pick(kind: str) -> tuple[Path, bool]:
+    """cache/ when populated, else the tracked examples. See ADR-0006."""
+    live = ROOT / "cache" / kind
+    if live.exists() and any(live.glob("*.json")):
+        return live, False
+    return ROOT / "examples" / kind, True
+
+
+ASSESSMENTS, USING_EXAMPLES = _pick("assessments")
+EXTRACTIONS, _ = _pick("extractions")
 
 BOLD, DIM, GREEN, YELLOW, RED, OFF = (
     "\033[1m", "\033[2m", "\033[32m", "\033[33m", "\033[31m", "\033[0m")
@@ -130,8 +138,11 @@ def main() -> int:
     args = ap.parse_args()
 
     if not ASSESSMENTS.exists():
-        print("no cache/assessments/ yet — run scripts/try_assess.py first", file=sys.stderr)
+        print("no assessments found — run scripts/try_assess.py first", file=sys.stderr)
         return 1
+    if USING_EXAMPLES and not args.json:
+        print(f"{DIM}reading the tracked examples/ set (cache/ is empty). "
+              f"Run scripts/try_assess.py to generate your own.{OFF}")
 
     rows = load()
     passed = sorted((r for r in rows if r["gate_pass"]), key=sort_key)

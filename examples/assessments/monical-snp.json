@@ -1,0 +1,28 @@
+{
+  "gate_pass": true,
+  "finite_witness": "A single finite graph $G$ on $n \\geq 12$ vertices whose chromatic symmetric function $X_G$ is Schur-positive but for which $X_G(x_1,\\ldots,x_k)$ fails SNP for some $k$ \u2014 i.e. a lattice point in the Newton polytope of $X_G(x_1,\\ldots,x_k)$ that is absent from its support.",
+  "gate_reason": "Condition 1: a single graph settles the universal claim, since the conjecture is a for-all statement over graphs. Condition 2: checking terminates \u2014 compute $X_G$ (finite sum over stable partitions / expand in $m_\\lambda$), expand in the Schur basis to test $s$-positivity, then for each $k$ compute the support, the convex hull of the support in $\\mathbb{R}^k$, and enumerate its lattice points; all finite exact-arithmetic steps. Condition 3: graphs on $n$ vertices are enumerable (nauty/geng), and $k \\leq n$ suffices since $X_G(x_1,\\ldots,x_k)$ stabilises.",
+  "frontier_status": "known",
+  "frontier_quote": "We also showed that in order to test Monical's conjecture one needs to consider graphs with $n\\geq 12$ vertices (see \\cite[Section 7.4]{MMS}).",
+  "frontier_smallest_open": "Graphs on 12 vertices",
+  "frontier_search_space": "All graphs on 12 vertices \u2014 roughly $1.7 \\times 10^{11}$ up to isomorphism, and each candidate requires computing a degree-12 symmetric function, a Schur expansion, and lattice-point enumeration in polytopes up to dimension 12; the per-graph cost is what makes this hard, not just the count.",
+  "machinery_depth": "moderate",
+  "machinery_reason": "The definitions (chromatic symmetric function, Schur expansion, Newton polytope, saturation) are all standard graduate-level algebraic combinatorics and are spelled out in the excerpt. No research programme must be absorbed to state or test the claim; the difficulty is computational, not conceptual. Some familiarity with $s$-positivity heuristics for $X_G$ (Gasharov's $P$-tableaux, incomparability graphs) helps target the search.",
+  "quantifier_form": "universal",
+  "prior_computation": "referenced",
+  "prior_computation_detail": "The context reports results obtained by computation without pointing at reusable code: \"showed in \\cite[Example 7.5]{MMS} that a stronger notion than the SNP property called M-convexity does not hold\" and \"We also showed that in order to test Monical's conjecture one needs to consider graphs with $n\\geq 12$ vertices (see \\cite[Section 7.4]{MMS})\" \u2014 the latter is almost certainly an exhaustive check up to 11 vertices, but no repository or tables are named here.",
+  "attention": "some",
+  "attention_reason": "The context names Monical (2018 thesis conjecture), Adve--Robichaux--Yong, and the present authors with Selover, and describes concrete partial results: verification for claw-free incomparability graphs (Theorem 5.8 of MMS), failure of the stronger M-convexity property (Example 7.5), a computational clearance below 12 vertices (Section 7.4), and a complexity-theoretic tension argument with Stanley's claw-free conjecture. That is a handful of results over roughly seven years, not decades of concentrated effort \u2014 and crucially the computational clearance is recent, which is the kind of attention that does exhaust a search region.",
+  "venue_signal": "none",
+  "argument": "The object is concrete: one graph on $\\geq 12$ vertices that is $s$-positive yet whose truncation $X_G(x_1,\\ldots,x_k)$ has a hole in its support. The paper hands you the starting line \u2014 everything below 12 vertices is already cleared \u2014 and it also hands you the most promising lead: the authors already broke M-convexity, the strictly stronger property, in Example 7.5, so the natural first move is to take their M-convexity counterexample, look at what near-miss structure produced the failure, and perturb toward an actual support gap rather than blind-enumerating $10^{11}$ twelve-vertex graphs. The strongest reason this eats a week for nothing is the verification cost rather than the count: each candidate needs an exact Schur expansion of a degree-12 symmetric function to certify $s$-positivity (the expensive and rare condition) before you even look at Newton polytopes, so any brute-force sweep must filter on $s$-positivity first, and $s$-positive graphs are sparse and awkward to generate directly. Two further cautions: the authors themselves write that this \"makes it hard to find a counterexample,\" and the Adve--Robichaux--Yong complexity tension cuts both ways \u2014 it suggests a counterexample exists, but it says nothing about where, so a failed search yields no publishable structure.",
+  "_meta": {
+    "name": "monical-snp",
+    "model": "opus",
+    "backend": "claude-cli",
+    "seconds": 25.1,
+    "usage": {
+      "cost_usd": 0.104569,
+      "output_tokens": 1679
+    }
+  }
+}

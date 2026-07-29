@@ -1,0 +1,168 @@
+{
+  "open_problems_section": false,
+  "extraction_confidence": "high",
+  "key_results": [
+    "d(t) = \u0398(t\u00b2) for smallest average degree forcing K_t-subdivision; upper bound d(t) \u2264 (10/23 + o(1))t\u00b2, lower bound d(t) \u2265 (9/64 + o(1))t\u00b2",
+    "Every graph with average degree d contains an (\u03b5,d/3)-expander with average degree \u2265 (1-\u03b4)d and minimum degree \u2265 d(G)/2",
+    "Path length between vertices in (\u03b5,d)-expander: O(log\u00b3n) (or O(log n log log n) with alternative definition)",
+    "Cycle lengths in sublinear expanders: all even lengths in interval [log\u2077n, n/log\u00b9\u00b2n]",
+    "Cycle decomposition: improved from O(n log n) to O(n log log n) to O(n log*n) cycles and edges",
+    "Rainbow cycles: O(n log n log log n) edges for properly-colored graphs with no rainbow cycle",
+    "Rainbow subdivisions: n(log n)^{2+o(1)} edges for properly-colored graphs with no rainbow K_k-subdivision",
+    "Ramsey numbers: R(C_n, K_m) = (n-1)(m-1)+1 proved when n = \u03a9(log m / log log m)",
+    "Ramsey numbers: R(C_n, H) = (\u03c7(H)-1)(n-1)+\u03c3(H) proved when n \u2265 C|H|log\u2074\u03c7(H)",
+    "Long cycles in d-regular (\u03b5,d)-expanders: cycle of length \u2265 n - n/log n exists for d \u2265 (log n)\u00b9\u2070\u2070",
+    "Latin squares: every Latin square of order n \u2265 n\u2080 has partial transversal with n-1 cells",
+    "Random Latin squares: decomposition into disjoint transversals exists with high probability"
+  ],
+  "notes_on_paper": "Source contains two papers: (1) 'Recent progress in graph theory using expansion' and (2) 'A brief survey on Latin squares', both by Richard Montgomery. Both papers are included in the extraction.",
+  "statements": [
+    {
+      "claim": "Determine whether the threshold average degree for K_t subdivisions equals exactly (9/64 + o(1))t\u00b2.",
+      "verbatim": "$d(t)= \\left(\\frac{9}{64}+o(1)\\right)t^2$.",
+      "context": "The paper establishes d(t) = \u0398(t\u00b2), with current bounds d(t) \u2264 (10/23 + o(1))t\u00b2 (upper bound from K\u00fchn and Osthus) and d(t) \u2265 (9/64 + o(1))t\u00b2 (lower bound from \u0141uczak's construction). Of these bounds, the lower bound seems likely to be nearer the truth. This conjecture proposes the lower bound is tight.",
+      "location": "Section 'Subdivisions', after Theorem thm:extsub",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "unclear",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "This is a natural quantitative refinement of the resolved Theorem thm:extsub that d(t) = \u0398(t\u00b2)."
+    },
+    {
+      "claim": "Prove that every graph with minimum degree at least 3 contains a cycle whose length is a power of 2.",
+      "verbatim": "Does every graph with minimum degree at least 3 contain a cycle of length $2^k$ for some $k\\geq 2$?",
+      "context": "The paper discusses that Liu and Montgomery used sublinear expansion to confirm that sufficiently large average degree forces a cycle of length that is a power of 2, answering a question of Erd\u0151s. This question asks whether minimum degree 3 suffices instead. The paper notes that Erd\u0151s and Gy\u00e1rf\u00e1s conjectured minimum degree 3 should work, but later thought this may be too strong. The authors remark that if the answer is positive, confirming it would require very substantial new ideas.",
+      "location": "Section 'Cycle lengths', Question 4.1",
+      "environment": "question",
+      "stated_as": "open",
+      "attribution_kind": "attributed",
+      "attributed_to": "Erd\u0151s and Gy\u00e1rf\u00e1s",
+      "attributed_citation": "[erdHos1994some]",
+      "notes": "This is a stronger version of a problem solved affirmatively by Liu-Montgomery for average degree, now asking if minimum degree 3 suffices."
+    },
+    {
+      "claim": "Show that every d-regular (\u03b5,d)-expander contains a Hamilton cycle for sufficiently large d.",
+      "verbatim": "For each $\\eps>0$, there exists some $d_0$ such that, for every $d\\geq d_0$, every $d$-regular $(\\eps,d)$-expander contains a Hamilton cycle.",
+      "context": "Letzter, Methuku and Sudakov recently proved that for any d \u2265 (log n)^{100}, any n-vertex d-regular (\u03b5,d)-expander contains a cycle with length at least n - n/log n. This conjecture proposes the stronger statement that these parameters suffice for a full Hamilton cycle. The paper notes that the parameters here may be improvable and that finding Hamilton cycles is difficult even in graphs with much stronger expansion conditions.",
+      "location": "Section 'Cycle lengths', Conjecture 4.2",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "original",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "This is an open question raised by the paper itself as a natural strengthening of recent results."
+    },
+    {
+      "claim": "Prove that every n-vertex graph can be decomposed into O(n) cycles and edges (i.e., edges not in any cycle).",
+      "verbatim": "Every $n$-vertex graph has a decomposition into $O(n)$ cycles and edges.",
+      "context": "This is a classical conjecture of Erd\u0151s and Gallai from 1966. The paper notes that the simple O(n log n) bound stood for nearly 50 years until Conlon, Fox and Sudakov improved it to O(n log log n) in 2014, and then Bu\u010di\u0107 and Montgomery improved it to O(n log*n) in 2024. The paper discusses how these improvements rely on expansion as a key tool. Despite inclusion in many problem collections, the conjecture remains open and any reasonable proof via memoryless iterative decomposition likely achieves at best O(n log*n).",
+      "location": "Section 'Cycle packing', Conjecture 5.1",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "attributed",
+      "attributed_to": "Erd\u0151s and Gallai",
+      "attributed_citation": "[erdos1966representation]",
+      "notes": "The paper discusses extensive progress on this problem, noting Erd\u0151s later observed that at least (3/2 - o(1))n cycles and edges may be necessary."
+    },
+    {
+      "claim": "For each integer k, determine the minimum average degree that guarantees k nested cycles with no geometric crossings.",
+      "verbatim": "For every $k$, there is some $g(k)$ such that any graph with average degree at least $g(k)$ has $k$ nested cycles with no geometric crossings.",
+      "context": "Fern\u00e1ndez, Kim, Kim and Liu used sublinear expansion in 2022 to answer this for k=2, showing that any n-vertex graph with no pair of nested cycles with no geometric crossings must have O(n) edges. However, the paper notes that as the proof takes a shortest cycle as the inner cycle, the methods seem limited to finding only two such cycles. This conjecture generalizes to arbitrary k.",
+      "location": "Section 'Cycles with additional properties', Conjecture 6.1",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "original",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "This is a natural generalization of the k=2 case proved by Fern\u00e1ndez et al., left as an open problem by the current survey."
+    },
+    {
+      "claim": "Prove that a properly-colored n-vertex graph with no rainbow cycle has O(n log n) edges.",
+      "verbatim": "Every properly-coloured $n$-vertex graph with no rainbow cycle has $O(n\\log n)$ edges.",
+      "context": "This problem was raised as a question by Keevash, Mubayi, Sudakov and Verstraete in 2007. The paper discusses steady improvements: Das, Lee and Sudakov gave O(n^{1+o(1)}), Janzer and Sudakov and Kim, Lee, Liu and Tran independently gave O(n log\u00b2n), and Alon, Bu\u010di\u0107, Sauermann, Zakharov and Zamir achieved O(n log n log log n). The paper notes that applications to coding theory and additive combinatorics are discussed in Sudakov's survey. The bound is tight up to a constant multiple via a specific construction involving power sets.",
+      "location": "Section 'Rainbow Tur\u00e1n problems for cycles and subdivisions', Conjecture 7.1",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "attributed",
+      "attributed_to": "Keevash, Mubayi, Sudakov and Verstraete",
+      "attributed_citation": "[keevash2007rainbow]",
+      "notes": "The authors of the best current result express some doubts about this conjecture's veracity; the bound O(n log n log log n) from Alon et al. may be tight instead."
+    },
+    {
+      "claim": "For each k \u2265 3, prove that a properly-colored n-vertex graph with no rainbow K_k-subdivision has O(n log n) edges.",
+      "verbatim": "For each $k\\geq 3$, every properly-coloured $n$-vertex graph with no rainbow $K_k$-subdivision has $O(n\\log n)$ edges.",
+      "context": "This is stated as a natural generalization of Conjecture 7.1 about rainbow cycles. The paper notes that after an initial bound by Jiang, Methuku and Yepremyan, Jiang, Letzter, Methuku and Yepremyan gave n log^{O(1)}n, and the current best is n(log n)^{2+o(1)} by Wang. The paper emphasizes that while homomorphism counting approaches help for cycles, the additional structure needed for subdivisions appears to require expansion methods.",
+      "location": "Section 'Rainbow Tur\u00e1n problems for cycles and subdivisions', Conjecture 7.2",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "original",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "The paper notes this appears to be a very substantial problem, as the clever argument of Alon et al. for cycles does not seem amenable to constructing rainbow subdivisions more generally."
+    },
+    {
+      "claim": "Prove that the Ramsey number R(C_n, K_m) equals (n-1)(m-1)+1 for all cycles versus complete graphs.",
+      "verbatim": "If $n\\geq m\\geq 3$, then $R(C_n,K_m)=(n-1)(m-1)+1$.",
+      "context": "This conjecture was made by Erd\u0151s, Faudree, Rousseau and Schelp in 1978. The paper notes that Nikiforov proved it when n \u2265 4m+2, and more recently Keevash, Long and Skokan proved it holds when n = \u03a9(log m / log log m). The paper remarks that despite remaining open, the conjecture is verified in increasingly broad ranges.",
+      "location": "Section 'Cycles in Ramsey theory', Conjecture 8.1",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "attributed",
+      "attributed_to": "Erd\u0151s, Faudree, Rousseau and Schelp",
+      "attributed_citation": "[erdHos1978size]",
+      "notes": "While open, this has been verified for large classes of parameters."
+    },
+    {
+      "claim": "Show that if a cycle G has at least C|H| vertices, then R(C_n, H) = (\u03c7(H)-1)(n-1)+\u03c3(H), where \u03c3(H) is the minimum color class size over all \u03c7(H)-colorings of H.",
+      "verbatim": "There exists $C>0$ such that if $G$ is an $n$-vertex cycle and $n\\geq C|H|$ then $R(C_n,H)=(\\chi(H)-1)(n-1)+\\sigma(H).",
+      "context": "This conjecture of Pokrovskiy and Sudakov is often stronger than a related conjecture of Allen, Brightwell and Skokan. A corresponding version for paths was proved by Pokrovskiy and Sudakov, and for bounded-degree trees by Montgomery, Pavez-Sign\u00e9 and Yan. The best result toward this conjecture is by Haslegrave, Hyde, Kim and Liu, who proved it when n \u2265 C|H|log\u2074\u03c7(H). The paper notes that their proof uses sublinear expansion techniques and that technical barriers from these methods make substantial improvements difficult.",
+      "location": "Section 'Cycles in Ramsey theory', Conjecture 8.2",
+      "environment": "conjecture",
+      "stated_as": "open",
+      "attribution_kind": "attributed",
+      "attributed_to": "Pokrovskiy and Sudakov",
+      "attributed_citation": "[pokrovskiy2020ramsey]",
+      "notes": "The paper notes that technical barriers from current expansion-based methods seem to make it hard to make substantial improvements."
+    },
+    {
+      "claim": "Prove that a Cayley table L(G) of a finite group G has a transversal if and only if G satisfies the Hall-Paige condition (all 2-Sylow subgroups are trivial or non-cyclic).",
+      "verbatim": "For any finite group $G$, $L(G)$ has a transversal if and only if $G$ satisfies the Hall-Paige condition.",
+      "context": "This conjecture was made by Hall and Paige in 1955. The paper states it was proved in 2009 using the classification of finite simple groups, by a combination of work of Wilcox, Evans and Bray. An alternative proof for sufficiently large groups was given by Eberhard, Manners, and Mrazovi\u0107 in 2022 using tools from analytic number theory, which also yields an asymptotic formula for the number of transversals.",
+      "location": "Second paper, Section 'Transversals in Latin squares', Conjecture HP",
+      "environment": "conjecture",
+      "stated_as": "resolved_elsewhere",
+      "attribution_kind": "attributed",
+      "attributed_to": "Hall and Paige",
+      "attributed_citation": "[hallpaige]",
+      "notes": "This conjecture was fully resolved in 2009 using the classification of finite simple groups."
+    },
+    {
+      "claim": "Prove that every Latin square of order n has a partial transversal with at least n-1 cells, and a full transversal if n is odd.",
+      "verbatim": "Every Latin square of order $n$ has a partial transversal with at least $n-1$ cells, and a full transversal if $n$ is odd.",
+      "context": "This combination of conjectures by Ryser, Brualdi and Stein is the main conjecture in the area. Progress has been made through increasingly better bounds: Brouwer et al. and Woolbright (n-\u221an), Shor (n-O(log\u00b2n)), Keevash et al. (n-O(log n/log log n)), and finally Montgomery proved for large n that every Latin square of order n \u2265 n\u2080 contains a partial transversal with n-1 cells. The paper notes this bound is tight when n is even, via constructions from Cayley tables of \u2124\u2082\u2098 and modifications thereof.",
+      "location": "Second paper, Section 'Transversals in Latin squares', Conjecture RBS",
+      "environment": "conjecture",
+      "stated_as": "partially_resolved",
+      "attribution_kind": "attributed",
+      "attributed_to": "Ryser, Brualdi and Stein",
+      "attributed_citation": "[Ryser], [brualdi1991combinatorial], [stein1975transversals]",
+      "notes": "Montgomery proved the full statement for sufficiently large n (Theorem thm:rbsnear). The conjecture remains open for small n and for the full transversal statement when n is odd."
+    }
+  ],
+  "_meta": {
+    "arxiv_id": "2607.26049",
+    "title": "Recent progress in graph theory using expansion",
+    "backend": "claude-cli",
+    "model": "haiku",
+    "prompt_sha256": "ca10acaac889",
+    "tex_chars": 160379,
+    "tex_truncated": false,
+    "usage": {
+      "input_tokens": 9,
+      "output_tokens": 11204,
+      "cost_usd": 0.305659
+    },
+    "seconds": 89.5
+  }
+}

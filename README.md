@@ -38,18 +38,22 @@ That's all. **No Anthropic developer-platform account is needed** — the script
 run through the authenticated Claude Code CLI by default. If you have a platform
 API key, add `--backend api` for cheaper runs with stricter output validation.
 
-### 2. Look at what's already here — free, instant
+### 2. Look at real output — free, instant
 
-The repo ships with real cached output. Start by reading it rather than
-generating more:
+The repo ships a small curated set of real pipeline output in
+[`examples/`](examples/), so you can see what the system produces before
+generating anything:
 
 ```sh
-.venv/bin/python scripts/statements.py --open      # open problems found so far
+.venv/bin/python scripts/statements.py --open      # open problems it found
 .venv/bin/python scripts/rank.py --why             # assessed problems, ranked
 ```
 
-Neither calls a model. This is the fastest way to understand what the system
-produces.
+Neither calls a model. Both read `cache/` if you have one and fall back to
+`examples/` otherwise, so this works on a fresh clone. Seven files covering a
+rich paper, a paper with no open problems at all, a survey, a Gate pass, a Gate
+rejection, and both calibration cases — see [`examples/README.md`](examples/README.md)
+for what each demonstrates.
 
 ### 3. Prove it still works — ~$0.30, 4 minutes
 
@@ -148,9 +152,12 @@ Read this before relying on any output.
 - **The Gate.** Passes 6 of 9 on a real survey paper. All three rejections were
   problems asking to prove an *asymptotic* bound, where no finite object can
   settle anything. It discriminates on real mathematical structure.
-- **Frontier honesty.** Given a paper with no numeric bound, it reports
-  `unknown` rather than inventing one — the failure mode we were most worried
-  about.
+- **Frontier honesty.** This was the failure mode we most feared: a model
+  inventing a plausible bound like "verified to n = 10" and sending someone to
+  search cleared ground. Given a context with no numeric range, it instead
+  reports the *structural* boundary the paper does state and notes explicitly
+  that "no vertex-count verification range appears anywhere in the supplied
+  text". It declines to make a number up.
 - **The Attention rule** ([ADR-0008](docs/adr/0008-attention-requires-evidence-not-reputation.md)).
   Written after the rubric was wrong four times in a row in the pessimistic
   direction, then confirmed on nine problems it had never seen.

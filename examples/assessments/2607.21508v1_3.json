@@ -1,0 +1,29 @@
+{
+  "gate_pass": true,
+  "finite_witness": "A claw-free graph on fewer than 12 vertices (or on 12 vertices with fewer than 21 edges) whose chromatic symmetric function has a negative coefficient in its Schur expansion \u2014 together with an exhaustive verification that no smaller claw-free graph does.",
+  "gate_reason": "Condition 1: a single finite graph settles the minimality question in one direction, and exhaustive absence over all claw-free graphs on n < 12 vertices settles it in the other. Condition 2: checking a candidate is a terminating computation \u2014 compute X_G by summing over stable partitions / expanding in power sums, convert to the Schur basis, inspect signs. Condition 3: claw-free graphs on at most 11 vertices are a finite, generatable family (nauty geng with a claw filter).",
+  "frontier_status": "known",
+  "frontier_quote": "The paper provides two counterexamples $G_1$ and $G_2$ on 12 vertices with 22 and 21 edges respectively.",
+  "frontier_smallest_open": "Claw-free graphs on n \u2264 11 vertices, and 12-vertex claw-free graphs with fewer than 21 edges",
+  "frontier_search_space": "All graphs on \u2264 11 vertices is roughly 1.0e9 unlabeled graphs (n=11 alone \u2248 1.0e9); claw-free graphs are a small fraction of these, so the generation step is feasible but the CSF-to-Schur conversion per graph is the bottleneck.",
+  "machinery_depth": "moderate",
+  "machinery_reason": "You need the definition of the chromatic symmetric function, the power-sum expansion over edge subsets (or stable-partition expansion), and a change of basis into Schur functions. All of this is standard symmetric-function combinatorics available in Sage/SymmetricFunctions, but knowing which expansion is computationally viable for n=11 and how to prune (e.g. by restricting to line graphs, or to partitions of length 4 like s_{3333}) takes some familiarity with the area.",
+  "quantifier_form": "existential",
+  "prior_computation": "referenced",
+  "prior_computation_detail": "The abstract states \"Both of these examples were found using ChatGPT-5.6 Sol Pro\" \u2014 the counterexamples came from an LLM-driven search, but the context supplies no code, repository, or tables to reuse.",
+  "attention": "fresh",
+  "attention_reason": "The minimality question is posed by the authors themselves in a closing remark (\"It would be interesting to find the smallest counterexample\"), attributed as original. The underlying Stanley conjecture dates to 1995 and was widely believed, but no prior exhaustive computational search over small claw-free graphs is described anywhere in the given context.",
+  "venue_signal": "none",
+  "argument": "The object is concrete: generate all claw-free graphs on n \u2264 11 with nauty (geng plus a claw filter), compute X_G, and look for a negative Schur coefficient; separately sweep 12-vertex claw-free graphs by edge count below 21. The strongest prior on where the answer lies is that Stanley's conjecture survived from 1995 to this paper, which is weak evidence about small n specifically \u2014 nobody in the supplied context reports having run the exhaustive check, and the counterexamples here were found by LLM-guided search rather than exhaustion, so the small-n region may simply never have been swept. The real cost is the verification step, not the enumeration: computing the full Schur expansion of X_G for every claw-free graph on 11 vertices is expensive, and you will want to restrict to a target shape (the paper's negatives both sit at s_{3333}, suggesting near-balanced 4-part partitions) and exploit the fact that both known examples are line graphs \u2014 checking line graphs of all graphs with 11 or 12 edges first is a cheap, high-yield opening move. The way this wastes a week is if the answer is simply 12 and the negative result requires a full exhaustive sweep you cannot finish, leaving you with neither an example nor a certificate.",
+  "frontier_status_note": null,
+  "_meta": {
+    "name": "2607.21508v1#3",
+    "model": "opus",
+    "backend": "claude-cli",
+    "seconds": 20.5,
+    "usage": {
+      "cost_usd": 0.095224,
+      "output_tokens": 1380
+    }
+  }
+}

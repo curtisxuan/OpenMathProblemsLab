@@ -1,0 +1,87 @@
+{
+  "open_problems_section": false,
+  "extraction_confidence": "high",
+  "key_results": [
+    "Disproves Stanley's claw-free Schur positivity conjecture: line graph $G_1$ on 12 vertices with 22 edges has Schur coefficient $[s_{3333}] X_{G_1} = -64$",
+    "Disproves Stanley's claw-free Schur positivity conjecture: line graph $G_2$ on 12 vertices with 21 edges has Schur coefficient $[s_{3333}] X_{G_2} = -40$",
+    "Disproves Monical's SNP conjecture: bipartite graph $G_3$ on 12 vertices with 19 edges has Schur positive chromatic symmetric function but unsaturated Newton polytope (has colorings of weight $(6,6,0)$ and $(8,2,2)$ but not their average $(7,4,1)$)"
+  ],
+  "notes_on_paper": "Clean, complete LaTeX source. Paper provides explicit counterexamples to two famous conjectures in algebraic combinatorics.",
+  "statements": [
+    {
+      "claim": "Prove that if a graph is claw-free, then its chromatic symmetric function is Schur positive.",
+      "verbatim": "If $G$ is claw-free, then $X_G({\\bf x})$ is $s$-positive.",
+      "context": "Stanley conjectured in 1995 that the chromatic symmetric function $X_G({\\bf x})$ of any claw-free graph $G$ (one with no copy of the claw graph $K_{1,3}$) expands positively in the Schur basis. Stanley verified this for co-bipartite graphs, Gasharov proved it for claw-free incomparability graphs of posets, and a real-rootedness result of Chudnovsky and Seymour would follow if the conjecture holds. However, this paper provides counterexamples: claw-free line graphs $G_1$ and $G_2$ on 12 vertices whose chromatic symmetric functions have negative Schur coefficients.",
+      "location": "conjecture [conj:stanley claw-free] in Introduction",
+      "environment": "conjecture",
+      "stated_as": "resolved_here",
+      "attribution_kind": "attributed",
+      "attributed_to": "Stanley",
+      "attributed_citation": "\\cite{StChrom1}",
+      "notes": "Formally stated as Conjecture 1.4 in \\cite{StChrom2}. The conjecture is false, disproven by the explicit counterexamples in this paper."
+    },
+    {
+      "claim": "Prove that if the chromatic symmetric function of a graph is Schur positive, then it has saturated Newton polytope when expressed in any finite number of variables.",
+      "verbatim": "If $X_G$ is $s$-positive, then $X_G(x_1,\\ldots,x_k)$ is SNP for any $k$.",
+      "context": "Monical conjectured that whenever the chromatic symmetric function of a graph has the SNP (saturated Newton polytope) property when expanded in finitely many variables. The SNP property means the support equals the set of integer lattice points in the Newton polytope. Testing this conjecture requires graphs with at least 12 vertices. The paper exhibits a counterexample: bipartite graph $G_3$ with 12 vertices and 19 edges that is Schur positive but has unsaturated Newton polytope in 3 variables, with proper colorings of weights $(6,6,0)$ and $(8,2,2)$ but not of the average $(7,4,1)$.",
+      "location": "conjecture [conj:monical M-convex] in Introduction",
+      "environment": "conjecture",
+      "stated_as": "resolved_here",
+      "attribution_kind": "attributed",
+      "attributed_to": "Monical",
+      "attributed_citation": "\\cite{Mphd}",
+      "notes": "Formally stated as Conjecture 2.37 in \\cite{Mphd}. The conjecture is false."
+    },
+    {
+      "claim": "Find a counterexample to Stanley's claw-free Schur positivity conjecture with the minimum possible number of vertices.",
+      "verbatim": "It would be interesting to find the smallest counterexample to Conjecture~\\ref{conj:stanley claw-free}, as well as infinite families of counterexamples.",
+      "context": "The paper provides two counterexamples $G_1$ and $G_2$ on 12 vertices with 22 and 21 edges respectively. Both are line graphs that are claw-free. The authors note that these examples are not incomparability graphs of posets (since $G_1$ contains a net subgraph). The authors pose finding the smallest counterexample as an open question.",
+      "location": "remark after Example 1",
+      "environment": "remark",
+      "stated_as": "open",
+      "attribution_kind": "original",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "The paper shows counterexamples exist on 12 vertices, but it is unknown whether smaller examples exist."
+    },
+    {
+      "claim": "Construct an infinite family of claw-free graphs whose chromatic symmetric functions are not Schur positive.",
+      "verbatim": "It would be interesting to find the smallest counterexample to Conjecture~\\ref{conj:stanley claw-free}, as well as infinite families of counterexamples.",
+      "context": "The paper provides two explicit counterexamples on 12 vertices. Beyond finding isolated counterexamples, the authors propose finding infinite families of graphs that systematically violate Stanley's conjecture.",
+      "location": "remark after Example 1",
+      "environment": "remark",
+      "stated_as": "open",
+      "attribution_kind": "original",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "This seeks parametric or infinite families rather than isolated examples."
+    },
+    {
+      "claim": "Find a counterexample to Monical's SNP conjecture that is claw-free and has the smallest possible size.",
+      "verbatim": "It would be interesting to find counterexamples to Monical's conjecture that are claw-free and smallest in size.",
+      "context": "The paper's counterexample $G_3$ is a bipartite graph on 12 vertices with 19 edges. However, this graph contains claws (e.g., vertices 1, 6, 7, 8 form a claw). The authors pose finding claw-free counterexamples as an interesting follow-up problem.",
+      "location": "remark after Example 3",
+      "environment": "remark",
+      "stated_as": "open",
+      "attribution_kind": "original",
+      "attributed_to": null,
+      "attributed_citation": null,
+      "notes": "The paper's counterexample to Monical's conjecture contains claws, so finding claw-free examples would be stronger and more directly related to the context of Stanley's claw-free conjecture."
+    }
+  ],
+  "_meta": {
+    "arxiv_id": "2607.21508v1",
+    "title": "Chromatic symmetric functions of claw-free graphs are not Schur positive",
+    "backend": "claude-cli",
+    "model": "haiku",
+    "prompt_sha256": "ca10acaac889",
+    "tex_chars": 18666,
+    "tex_truncated": false,
+    "usage": {
+      "input_tokens": 9,
+      "output_tokens": 6746,
+      "cost_usd": 0.072237
+    },
+    "seconds": 46.7
+  }
+}

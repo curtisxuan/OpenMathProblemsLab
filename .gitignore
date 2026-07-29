@@ -3,7 +3,10 @@ db/
 *.sqlite
 *.sqlite3
 
-# Cached arXiv LaTeX sources (~420MB/month)
+# Working cache: papers, extractions, assessments. Machine output, overwritten
+# every run, ~420MB/month of sources. See ADR-0006.
+# NOTE: examples/ is deliberately NOT ignored -- it is a curated, frozen subset
+# so a fresh clone can show real output. See examples/README.md.
 cache/
 
 # Generated reports
