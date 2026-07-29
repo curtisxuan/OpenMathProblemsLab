@@ -126,6 +126,27 @@ version other than the current one.
 The terminal summary omits `context`, `notes`, and `_meta` — read the JSON when
 you are checking extraction quality rather than just counting statements.
 
+### Rank the assessed problems
+
+```sh
+.venv/bin/python scripts/rank.py           # ranked table
+.venv/bin/python scripts/rank.py --why     # plus each problem's main risk
+.venv/bin/python scripts/rank.py --all     # include Gate rejections
+```
+
+Ranks by **shovel-readiness, not probability of success** — nobody has attacked a
+recommended problem yet, so there is no data on how often the system is right.
+
+It is a lexicographic sort, not a score, so no hidden weighting
+([ADR-0005](docs/adr/0005-hard-gate-and-independent-axes-with-no-score.md)).
+Priority: `frontier > machinery > prior_computation > quantifier > attention`.
+Attention is last on purpose — it has been wrong every time we could check it
+against reality. Disagree by editing `RANK_KEYS` in the script; that is the point
+of keeping it a sort.
+
+Calibration fixtures are excluded: those conjectures are already refuted, so
+ranking them as candidates would be misleading.
+
 ---
 
 ## Backends
