@@ -25,8 +25,24 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-EXTRACTIONS = ROOT / "cache" / "extractions"
 PROMPT = ROOT / "prompts" / "extract.md"
+
+
+def source_dir() -> tuple[Path, bool]:
+    """Use cache/ when populated, else the tracked examples.
+
+    A fresh clone has no cache -- cache/ is a build artifact and stays
+    gitignored (ADR-0006). examples/ is a small hand-curated set, which by that
+    same rule is source, so a newcomer can read real output before spending
+    anything. Returns (dir, is_fallback).
+    """
+    live = ROOT / "cache" / "extractions"
+    if live.exists() and any(live.glob("*.json")):
+        return live, False
+    return ROOT / "examples" / "extractions", True
+
+
+EXTRACTIONS, USING_EXAMPLES = source_dir()
 
 DIM, BOLD, GREEN, YELLOW, OFF = "\033[2m", "\033[1m", "\033[32m", "\033[33m", "\033[0m"
 
@@ -69,8 +85,11 @@ def main() -> int:
     args = ap.parse_args()
 
     if not EXTRACTIONS.exists():
-        print("no cache/extractions/ yet — run scripts/try_extract.py first", file=sys.stderr)
+        print("no extractions found — run scripts/try_extract.py first", file=sys.stderr)
         return 1
+    if USING_EXAMPLES and not args.json:
+        print(f"{DIM}reading the tracked examples/ set (cache/ is empty). "
+              f"Run scripts/try_extract.py to generate your own.{OFF}")
 
     rows = load()
     total_before = len(rows)

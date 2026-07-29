@@ -1,0 +1,28 @@
+{
+  "gate_pass": true,
+  "finite_witness": "A single claw-free graph G on a modest number of vertices (say 10-16) whose chromatic symmetric function X_G has at least one negative coefficient in the Schur basis.",
+  "gate_reason": "Condition 1: the claim is universal over claw-free graphs, so one explicit finite graph with a negative Schur coefficient settles it outright. Condition 2: verification terminates \u2014 check K_{1,3}-freeness by brute force over 4-subsets, compute X_G (e.g. via the power-sum expansion over edge subsets, or by enumerating stable partitions), and convert to the Schur basis with the inverse Kostka/character machinery. Condition 3: graphs on n vertices are a structured enumerable family, and claw-free graphs can be generated or filtered from nauty output.",
+  "frontier_status": "known",
+  "frontier_quote": "Stanley checked that the claw $K_{1,3}$ is not $s$-positive and verified this conjecture for co-bipartite graphs, which are complements of bipartite graphs. Gasharov proved it for claw-free incomparability graphs of posets.",
+  "frontier_smallest_open": "The boundary given in the context is structural, not numeric: claw-free graphs that are neither co-bipartite nor incomparability graphs of posets. No vertex-count verification range appears anywhere in the supplied text.",
+  "frontier_search_space": "Unquantified. Claw-free graphs outside the two settled classes appear already at small n; the practical constraint is the cost of the Schur expansion per graph, not the count of graphs, up to roughly n = 12-16.",
+  "machinery_depth": "moderate",
+  "machinery_reason": "The statement needs only the definition of X_G (a sum over proper colourings) and the Schur basis, but interpreting near-misses, knowing which claw-free families are already covered (co-bipartite, incomparability graphs), and reading the Adve-Robichaux-Yong tension with Monical's SNP conjecture requires a graduate course in symmetric function theory and its representation-theoretic side. Nothing here demands absorbing a research programme to run the search itself.",
+  "quantifier_form": "universal",
+  "prior_computation": "referenced",
+  "prior_computation_detail": "The context says 'Stanley checked that the claw $K_{1,3}$ is not $s$-positive and verified this conjecture for co-bipartite graphs' and cites Adve-Robichaux-Yong's 'computational complexity arguments of coloring of claw-free graphs', but points at no code, table, repository, or OEIS entry, and describes no exhaustive search over small claw-free graphs.",
+  "attention": "heavy",
+  "attention_reason": "The context names Stanley (1993/1995), Gasharov, Guay-Paquet (2013), Hikita (2024), Griffin-Mellit-Romero-Weigl-Wen, Dahlberg-Foley-van Willigenburg, Fenn-Sommers, Chudnovsky-Seymour, and Adve-Robichaux-Yong \u2014 three decades of sustained work by strong people. Crucially, all of it as described is structural, representation-theoretic, or complexity-theoretic; the context describes no exhaustive computational search over claw-free graphs at any vertex count, so this is heavy *thinking* attention, not evidence that a search region has been swept.",
+  "venue_signal": "none",
+  "argument": "The object to look for is one claw-free graph with a negative Schur coefficient, and the context hands you an unusually sharp reason to expect it exists: Adve-Robichaux-Yong show this conjecture and Monical's SNP conjecture are in tension, so 'it is unlikely that both conjectures hold.' Start by generating claw-free graphs on 9-14 vertices with nauty, discard co-bipartite ones and poset incomparability graphs (both settled), and prioritise the remaining structure classes from the Chudnovsky-Seymour claw-free structure theorem, where a counterexample would have to live. The strongest reason this burns a week is the per-graph cost, not the number of graphs: computing X_G exactly is #P-hard and the naive power-sum expansion is 2^{|E|}, so a dense claw-free graph on 14 vertices with 60 edges is already out of reach without a smarter stable-partition or clique-cover algorithm \u2014 you must invest in the evaluation kernel before the search is worth anything. A secondary risk is that thirty years of combinatorialists with symmetric-function software have almost certainly poked at small cases informally, even though the context records no such sweep, so the reachable region may be quietly clean.",
+  "_meta": {
+    "name": "stanley-claw-free",
+    "model": "opus",
+    "backend": "claude-cli",
+    "seconds": 44.2,
+    "usage": {
+      "cost_usd": 0.147174,
+      "output_tokens": 3292
+    }
+  }
+}
