@@ -381,6 +381,11 @@ def main() -> int:
                     help="categories to keep when harvesting")
     ap.add_argument("--extract-all", action="store_true",
                     help="with --harvest, actually run extraction over everything found")
+    ap.add_argument("--max-cost", type=float, default=25.0, metavar="USD",
+                    help="stop cleanly once cumulative cost reaches this (default 25.00). "
+                         "Safe to hit: the run is resumable, so raise it and re-run to "
+                         "continue. Only enforceable on the claude-cli backend, which is "
+                         "the only one that reports per-call cost.")
     ap.add_argument("--force", action="store_true",
                     help="re-extract papers already in cache/extractions (default: skip them, "
                          "so a long run is resumable)")
@@ -457,8 +462,22 @@ def main() -> int:
         totals["papers"] += 1
         totals["statements"] += len(statements)
         totals["open"] += open_count
+        if usage.get("cost_usd") is None and args.max_cost and totals["papers"] == 0:
+            print("  !! this backend does not report per-call cost — --max-cost cannot be "
+                  "enforced", file=sys.stderr)
         totals["cost"] += usage.get("cost_usd") or 0.0
         totals["seconds"] += elapsed
+
+        if args.max_cost and totals["cost"] >= args.max_cost:
+            print(f"\n{'=' * 66}\nSTOPPED: cost cap of ${args.max_cost:.2f} reached "
+                  f"(spent ${totals['cost']:.2f} on {totals['papers']} papers).\n"
+                  f"{total_n - n_done} paper(s) still to go. Average so far: "
+                  f"${totals['cost'] / max(totals['papers'], 1):.3f}/paper, so finishing "
+                  f"needs roughly ${(total_n - n_done) * totals['cost'] / max(totals['papers'], 1):.0f} more.\n"
+                  f"  re-run the same command with --max-cost <higher value>\n"
+                  f"Already-extracted papers are skipped, so nothing is repeated.\n"
+                  f"{'=' * 66}")
+            break
 
         flag = "" if result["extraction_confidence"] == "high" else "  [LOW CONFIDENCE]"
         eta = ""
