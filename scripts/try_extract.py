@@ -313,7 +313,14 @@ def _parse_json(text: str) -> dict:
         return json.loads(_repair_json(body))
 
 
-def run_claude_cli(prompt: str, model: str, timeout: int = 900) -> tuple[dict, dict]:
+# A paper normally takes ~70s. 900s was far too generous: when Claude Code hits a
+# rate limit it retries internally at ~0% CPU and produces no output, so a long
+# timeout turns one throttled call into a 15+ minute silent stall. Fail fast and
+# let the run move on -- the paper stays unextracted and is picked up on re-run.
+CLI_TIMEOUT_S = 240
+
+
+def run_claude_cli(prompt: str, model: str, timeout: int = CLI_TIMEOUT_S) -> tuple[dict, dict]:
     """Execute via the authenticated Claude Code CLI.
 
     No schema enforcement is available here, so the schema is appended to the
@@ -485,11 +492,13 @@ def main() -> int:
             avg = totals["seconds"] / max(totals["papers"], 1)
             eta = f"  eta {(total_n - n_done) * avg / 60:.0f}m" if totals["papers"] else ""
             eta += f"  ${totals['cost']:.2f} so far"
-        print(f"\n[{n_done}/{total_n}] {arxiv_id}  {title[:52]}{flag}{eta}")
+        # flush: stdout is block-buffered when redirected to a file, which makes a
+        # multi-hour run look hung. Nothing is more alarming than a silent log.
+        print(f"\n[{n_done}/{total_n}] {arxiv_id}  {title[:52]}{flag}{eta}", flush=True)
         print(f"  {len(statements)} statement(s), {open_count} open  ({elapsed:.0f}s)")
         for s in statements:
             who = s["attributed_to"] or s["attribution_kind"]
-            print(f"    - [{s['stated_as']:<19}] {s['location'][:34]:<34} ({who})")
+            print(f"    - [{s['stated_as']:<19}] {s['location'][:34]:<34} ({who})", flush=True)
             if args.show:
                 print(f"        {s['claim']}")
 
