@@ -441,9 +441,17 @@ def main() -> int:
     for n_done, entry in enumerate(papers, 1):
         arxiv_id = entry["arxiv_id"]
         title = entry.get("title") or metadata(arxiv_id)["title"]
-        tex, how = read_tex(ensure_source(arxiv_id))
+        # Fetching must be inside the per-paper guard. Not every arXiv id has a
+        # downloadable e-print -- PDF-only and withdrawn submissions 404 -- and a
+        # 404 here previously propagated and killed a 333-paper run at paper 217.
+        try:
+            tex, how = read_tex(ensure_source(arxiv_id))
+        except Exception as exc:  # noqa: BLE001 - one bad paper must not stop the batch
+            print(f"  !! {arxiv_id}: source unavailable ({type(exc).__name__}: {exc})",
+                  file=sys.stderr, flush=True)
+            continue
         if not tex:
-            print(f"  !! {arxiv_id}: no .tex ({how})", file=sys.stderr)
+            print(f"  !! {arxiv_id}: no .tex ({how})", file=sys.stderr, flush=True)
             continue
 
         prompt = build_prompt(arxiv_id, title, tex)
