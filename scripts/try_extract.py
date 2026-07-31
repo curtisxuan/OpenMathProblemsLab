@@ -231,6 +231,22 @@ def ensure_source(arxiv_id: str) -> Path:
     return path
 
 
+def _already_done(arxiv_id: str, prompt_sha: str) -> bool:
+    """True if this paper has a cached extraction from the CURRENT prompt.
+
+    Makes a long run resumable: a 331-paper job that dies at paper 200 picks up
+    where it left off. Keyed on the prompt hash so editing the prompt correctly
+    invalidates everything.
+    """
+    path = OUT / f"{arxiv_id.replace('/', '_')}.json"
+    if not path.exists():
+        return False
+    try:
+        return json.loads(path.read_text()).get("_meta", {}).get("prompt_sha256") == prompt_sha
+    except Exception:  # noqa: BLE001 - unreadable cache is not done
+        return False
+
+
 def read_tex(path: Path) -> tuple[str, str]:
     """Return (tex, how). arXiv e-prints are a tarball or a single gzipped .tex."""
     raw = path.read_bytes()
@@ -365,6 +381,9 @@ def main() -> int:
                     help="categories to keep when harvesting")
     ap.add_argument("--extract-all", action="store_true",
                     help="with --harvest, actually run extraction over everything found")
+    ap.add_argument("--force", action="store_true",
+                    help="re-extract papers already in cache/extractions (default: skip them, "
+                         "so a long run is resumable)")
     ap.add_argument("--backend", choices=["claude-cli", "api"], default="claude-cli")
     ap.add_argument("--model", default=None, help="default: 'haiku' (cli) / 'claude-haiku-4-5' (api)")
     ap.add_argument("--show", action="store_true", help="print each claim inline")
@@ -392,9 +411,22 @@ def main() -> int:
         ap.error("give some arXiv IDs, --recent N, or --harvest FROM:UNTIL")
 
     OUT.mkdir(parents=True, exist_ok=True)
-    totals = {"papers": 0, "statements": 0, "open": 0, "cost": 0.0, "seconds": 0.0}
 
-    for entry in papers:
+    if not args.force:
+        prompt_sha = hashlib.sha256(PROMPT.read_bytes()).hexdigest()[:12]
+        before = len(papers)
+        papers = [e for e in papers if not _already_done(e["arxiv_id"], prompt_sha)]
+        if before != len(papers):
+            print(f"skipping {before - len(papers)} paper(s) already extracted with this "
+                  f"prompt; {len(papers)} to go  (--force to redo)")
+    if not papers:
+        print("nothing to do")
+        return 0
+
+    totals = {"papers": 0, "statements": 0, "open": 0, "cost": 0.0, "seconds": 0.0}
+    total_n = len(papers)
+
+    for n_done, entry in enumerate(papers, 1):
         arxiv_id = entry["arxiv_id"]
         title = entry.get("title") or metadata(arxiv_id)["title"]
         tex, how = read_tex(ensure_source(arxiv_id))
@@ -429,7 +461,12 @@ def main() -> int:
         totals["seconds"] += elapsed
 
         flag = "" if result["extraction_confidence"] == "high" else "  [LOW CONFIDENCE]"
-        print(f"\n{arxiv_id}  {title[:66]}{flag}")
+        eta = ""
+        if total_n > 1:
+            avg = totals["seconds"] / max(totals["papers"], 1)
+            eta = f"  eta {(total_n - n_done) * avg / 60:.0f}m" if totals["papers"] else ""
+            eta += f"  ${totals['cost']:.2f} so far"
+        print(f"\n[{n_done}/{total_n}] {arxiv_id}  {title[:52]}{flag}{eta}")
         print(f"  {len(statements)} statement(s), {open_count} open  ({elapsed:.0f}s)")
         for s in statements:
             who = s["attributed_to"] or s["attribution_kind"]
