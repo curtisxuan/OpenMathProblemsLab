@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "gate_pass": {
+      "type": "boolean",
+      "description": "All three conditions hold: a finite object settles it, checking terminates, candidates are enumerable. When genuinely unsure, pass."
+    },
+    "witness": {
+      "type": ["string", "null"],
+      "description": "The finite object to look for. null when gate_pass is false."
+    },
+    "reason": {
+      "type": "string",
+      "description": "One sentence."
+    }
+  },
+  "required": ["gate_pass", "witness", "reason"],
+  "additionalProperties": false
+}
