@@ -94,6 +94,7 @@ def build_related(doc: dict, this_index: int) -> str:
 
 
 SCREEN = ROOT / "cache" / "screen"
+EXTRACTIONS = ROOT / "cache" / "extractions"
 
 
 def screened_problems() -> list[tuple[str, dict]]:
