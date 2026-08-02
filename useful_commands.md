@@ -21,6 +21,30 @@ access later.
 
 ---
 
+## Between the stages — the optional gate screen
+
+```sh
+.venv/bin/python scripts/screen.py --all         # screen every open statement
+.venv/bin/python scripts/screen.py --report      # survival rate, no model calls
+.venv/bin/python scripts/screen.py --validate    # compare against existing Opus verdicts
+```
+
+Answers only the Gate question on Haiku (~$0.005) so the ~$0.10 Opus assessment
+runs on survivors only. **Optional** — Gate logic lives in `assess.md`, so
+skipping it changes cost, not verdicts.
+
+Run `--validate` after editing either prompt: it re-screens problems that already
+have an Opus verdict and reports agreement. It was agreement dropping to 58% that
+exposed a real bug in the Gate itself (see
+[ADR-0008](docs/adr/0008-attention-requires-evidence-not-reputation.md) neighbours
+and the Gate section of `prompts/assess.md`).
+
+Then assess only what survived:
+
+```sh
+.venv/bin/python scripts/try_assess.py --screened --max-cost 20
+```
+
 ## Stage 2 — the rubric
 
 ### Run the backtest

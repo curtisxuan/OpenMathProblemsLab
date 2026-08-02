@@ -89,10 +89,17 @@ Both use cached papers, so no network calls to arXiv.
 ## How it works
 
 ```
-arXiv LaTeX ──▶ Statement ──▶ Conjecture ──▶ Assessment ──▶ ranked list
-              extract        dedup         gate + 6 axes
-              (Haiku)                      (Opus)
+arXiv LaTeX ──▶ Statement ──▶ [screen] ──▶ Assessment ──▶ ranked list
+              extract        gate only    gate + 6 axes
+              (Haiku)        (Haiku)      (Opus)
+                             optional
 ```
+
+The screen is **optional**. Gate logic lives in `assess.md`, so `extract → assess`
+produces identical verdicts — the screen just answers the yes/no part on a model
+20x cheaper first, so the expensive six-axis pass runs on survivors only. On the
+sample measured it only ever *leaks* (passes things Opus later rejects), never
+drops something Opus would have kept, so it costs no recall.
 
 **Stage 1 — extraction.** Reads the full source of every paper, with no keyword
 prefilter. That's deliberate: on a measured sample only 25% of papers put their
@@ -119,6 +126,7 @@ someone to search ground that was cleared a decade ago.
 | Script | Does | Model? | Cost |
 |---|---|---|---|
 | `scripts/try_extract.py` | Stage 1. Papers → problems | Haiku | ~$0.07/paper |
+| `scripts/screen.py` | Optional. Cheap gate-only pre-filter | Haiku | ~$0.005/problem |
 | `scripts/try_assess.py` | Stage 2. Problems → gate + axes | Opus | ~$0.10/problem |
 | `scripts/statements.py` | Browse/filter every extracted problem | no | free |
 | `scripts/rank.py` | Order assessed problems by readiness | no | free |
@@ -130,6 +138,19 @@ They chain through files in `cache/`, so each can run independently:
 .venv/bin/python scripts/try_assess.py --from-extraction cache/extractions/*.json
 .venv/bin/python scripts/rank.py --why
 ```
+
+At scale, put the screen in between — same results, roughly a third off:
+
+```sh
+.venv/bin/python scripts/try_extract.py --harvest 2026-07-20:2026-07-24 --extract-all
+.venv/bin/python scripts/screen.py --all                    # ~$0.005 each
+.venv/bin/python scripts/try_assess.py --screened --max-cost 20
+.venv/bin/python scripts/rank.py --why
+```
+
+Every long-running command is **resumable** (re-run to continue), **capped**
+(`--max-cost`), and **single-instance** (a second concurrent run is refused,
+because the cap is per process and would silently double).
 
 ⚠️ That middle command assesses **every** open problem found — check the count
 with `scripts/statements.py --open` first, at ~$0.10 each.
