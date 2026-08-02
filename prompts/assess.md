@@ -63,6 +63,16 @@ First, the only question that can exclude this problem entirely. All three must 
 1. **A finite object settles it** — you can name a specific finite mathematical object (a graph, a matrix, a colouring, a set system, a polynomial, a configuration) whose existence or non-existence would resolve the problem, or would constitute genuine partial progress on it.
 2. **Checking a candidate terminates** — given one such object, verifying whether it works is a computation you could actually implement and run to completion.
 3. **The candidate family is enumerable** — the objects live in a family you can search in some structured way, even if that family is enormous. "All graphs on 12 vertices" qualifies. "All real analytic functions" does not.
+4. **A single concrete instance could contradict the statement.** This is the condition most often missed, and missing it produces confidently-gated problems that no amount of computation can move.
+
+   Ask directly: is the claim hedged so that **no finite instance could ever refute it**? Fail if so:
+   - $O(\cdot)$ or $\Omega(\cdot)$ bounds — *"decomposes into $O(n)$ cycles"*. Any single finite graph is consistent with some constant.
+   - $o(1)$ or $(c + o(1))$ terms — *"the threshold is $(9/64 + o(1))t^2$"*.
+   - "for sufficiently large $n$", "for some constant $C$", "for all $n \geq C|H|$" with $C$ never pinned down — a small counterexample is always dismissible as below the threshold.
+
+   Contrast an **exact** claim over infinitely many cases: a specific formula, a stated constant, no hidden slack. *"$R(C_n,K_m) = (n-1)(m-1)+1$ for all $n,m$"* passes — one failing pair kills it.
+
+   Note that a universal claim is settled by **refutation**, not proof. Do not fail a "for all $n$" statement merely because no finite object proves it; almost none do. Fail it only when no finite object could *disprove* it either.
 
 **The Gate is not a tractability judgment.** A problem whose search space is $10^{40}$ still passes the Gate — it is `Frontier`'s job to say the search is out of reach, not the Gate's. Keeping these separate is what makes the axes readable: the Gate answers *"is this the right kind of problem?"*, the axes answer *"is this instance worth your week?"*
 
