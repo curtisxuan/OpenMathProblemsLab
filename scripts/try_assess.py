@@ -18,7 +18,9 @@ against the known outcome -- that is the whole point of the backtest.
 from __future__ import annotations
 
 import argparse
+import atexit
 import json
+import os
 import re
 import subprocess
 import sys
@@ -89,6 +91,48 @@ def build_related(doc: dict, this_index: int) -> str:
     if siblings:
         parts.append("**Other problems extracted from this paper.**\n" + "\n".join(siblings))
     return "\n\n".join(parts) if parts else "(nothing else extracted from this paper)"
+
+
+SCREEN = ROOT / "cache" / "screen"
+
+
+def screened_problems() -> list[tuple[str, dict]]:
+    """Every open statement that PASSED the cheap gate screen.
+
+    The screen answers only the Gate question on Haiku; this reads its verdicts
+    and rebuilds the full problem record for the survivors, so the expensive
+    six-axis assessment never runs on something already ruled out.
+    """
+    passes = set()
+    for f in SCREEN.glob("*.json"):
+        if f.name.startswith("."):
+            continue
+        try:
+            d = json.loads(f.read_text())
+        except Exception:  # noqa: BLE001
+            continue
+        if d.get("gate_pass"):
+            passes.add(f.stem)
+
+    out = []
+    for path in sorted(EXTRACTIONS.glob("*.json")):
+        doc = json.loads(path.read_text())
+        meta = doc.get("_meta", {})
+        for i, st in enumerate(doc.get("statements", []), 1):
+            if st["stated_as"] != "open":
+                continue
+            ref = f"{meta.get('arxiv_id','?')}_{i}"
+            if ref not in passes:
+                continue
+            out.append((ref, {
+                "claim": st["claim"], "verbatim": st["verbatim"], "context": st["context"],
+                "attribution": f"{st['attribution_kind']}"
+                               + (f", to {st['attributed_to']} {st['attributed_citation']}"
+                                  if st["attributed_to"] else ""),
+                "paper_meta": f"arXiv {meta.get('arxiv_id','?')}: {meta.get('title','')}",
+                "related": build_related(doc, i),
+            }))
+    return out
 
 
 def build_prompt(problem: dict) -> str:
@@ -192,6 +236,14 @@ def main() -> int:
     ap.add_argument("--from-extraction", type=Path, nargs="+", metavar="FILE",
                     help="assess every open statement in one or more stage-1 extraction "
                          "files; accepts a glob, e.g. cache/extractions/*.json")
+    ap.add_argument("--screened", action="store_true",
+                    help="assess only statements that PASSED scripts/screen.py")
+    ap.add_argument("--limit", type=int, metavar="N", help="assess at most N problems")
+    ap.add_argument("--max-cost", type=float, default=15.0, metavar="USD",
+                    help="stop cleanly at this cumulative spend (default 15.00). Safe to "
+                         "hit -- the run is resumable.")
+    ap.add_argument("--force", action="store_true",
+                    help="re-assess problems already in cache/assessments")
     ap.add_argument("--backend", choices=["claude-cli", "api"], default="claude-cli")
     ap.add_argument("--model", default=None, help="default: 'opus' (cli) / 'claude-opus-5' (api)")
     args = ap.parse_args()
@@ -215,15 +267,52 @@ def main() -> int:
                 "paper_meta": f"arXiv {meta.get('arxiv_id','?')}: {meta.get('title','')}",
                 "related": build_related(doc, i),
             }))
+    if args.screened:
+        problems.extend(screened_problems())
     if not problems:
-        ap.error("give some input files or --from-extraction")
+        ap.error("give input files, --from-extraction, or --screened")
+
+    # Resumable: a 350-problem run is hours long and will be interrupted.
+    if not args.force:
+        before = len(problems)
+        problems = [(n, p) for n, p in problems
+                    if not (OUT / f"{n.replace('#', '_')}.json").exists()]
+        if before != len(problems):
+            print(f"skipping {before - len(problems)} already assessed; "
+                  f"{len(problems)} to go  (--force to redo)")
+    if args.limit:
+        problems = problems[:args.limit]
+    if not problems:
+        print("nothing to do")
+        return 0
+
+    # Single-instance lock: two concurrent runs duplicate every call, and
+    # --max-cost is per process so the cap silently doubles.
+    OUT.mkdir(parents=True, exist_ok=True)
+    lock = OUT / ".running.pid"
+    if lock.exists():
+        try:
+            other = int(lock.read_text())
+            os.kill(other, 0)
+            print(f"already running as pid {other}. Kill it, or delete "
+                  f"{lock.relative_to(ROOT)} if stale.", file=sys.stderr)
+            return 1
+        except (ProcessLookupError, ValueError):
+            pass
+    lock.write_text(str(os.getpid()))
+    atexit.register(lambda: lock.unlink(missing_ok=True))
 
     calibration = load_calibration()
     OUT.mkdir(parents=True, exist_ok=True)
     cost = 0.0
     scored = [0, 0]
 
-    for name, problem in problems:
+    for n_done, (name, problem) in enumerate(problems, 1):
+        if cost >= args.max_cost:
+            print(f"\nSTOPPED: cost cap ${args.max_cost:.2f} reached after "
+                  f"{n_done - 1} problems (${cost:.2f}). {len(problems) - n_done + 1} "
+                  f"remaining — re-run with a higher --max-cost to continue.")
+            break
         started = time.time()
         try:
             result, usage = (run_claude_cli(build_prompt(problem), model)
@@ -237,6 +326,8 @@ def main() -> int:
                            "seconds": round(time.time() - started, 1), "usage": usage}
         (OUT / f"{name.replace('#', '_')}.json").write_text(json.dumps(result, indent=2))
 
+        if len(problems) > 5:
+            print(f"{DIM}[{n_done}/{len(problems)}]  ${cost:.2f} spent{OFF}", flush=True)
         verdict = show(name, result, calibration.get(problem.get("calibration_slug", "")))
         if verdict is not None:
             scored[0 if verdict else 1] += 1
