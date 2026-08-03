@@ -285,8 +285,13 @@ def main() -> int:
         if before != len(problems):
             print(f"skipping {before - len(problems)} already assessed; "
                   f"{len(problems)} to go  (--force to redo)")
-    if args.limit:
-        problems = problems[:args.limit]
+    if args.limit and len(problems) > args.limit:
+        # Take an EVENLY SPACED slice, not a prefix. Files sort by arXiv id, so
+        # problems[:N] is really "papers submitted earliest in the window" -- a
+        # date cut disguised as a sample, which would drop the densest survey
+        # papers at the end of the corpus entirely.
+        step = len(problems) / args.limit
+        problems = [problems[int(i * step)] for i in range(args.limit)]
     if not problems:
         print("nothing to do")
         return 0
