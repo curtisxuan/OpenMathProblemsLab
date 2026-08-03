@@ -93,6 +93,9 @@ def build_related(doc: dict, this_index: int) -> str:
     return "\n\n".join(parts) if parts else "(nothing else extracted from this paper)"
 
 
+# 109 straight failures were observed before anyone noticed; 5 is plenty.
+MAX_CONSECUTIVE_FAILURES = 5
+
 SCREEN = ROOT / "cache" / "screen"
 EXTRACTIONS = ROOT / "cache" / "extractions"
 
@@ -186,7 +189,8 @@ def run_claude_cli(prompt: str, model: str, timeout: int = 1200) -> tuple[dict, 
         input=prompt, capture_output=True, text=True, timeout=timeout,
     )
     if proc.returncode != 0:
-        raise RuntimeError(f"claude exited {proc.returncode}: {proc.stderr[:400]}")
+        detail = (proc.stderr or proc.stdout or "").strip()[:300] or "(no output)"
+        raise RuntimeError(f"claude exited {proc.returncode}: {detail}")
     env = json.loads(proc.stdout)
     if env.get("is_error"):
         raise RuntimeError(f"claude error: {env.get('result','')[:400]}")
@@ -307,6 +311,7 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     cost = 0.0
     scored = [0, 0]
+    consecutive_failures = 0
 
     for n_done, (name, problem) in enumerate(problems, 1):
         if cost >= args.max_cost:
@@ -320,8 +325,22 @@ def main() -> int:
                              if args.backend == "claude-cli"
                              else run_api(build_prompt(problem), model))
         except Exception as exc:  # noqa: BLE001
-            print(f"  !! {name}: {type(exc).__name__}: {exc}", file=sys.stderr)
+            print(f"  !! {name}: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
+            consecutive_failures += 1
+            # A run-wide problem -- expired auth, revoked token, rate limit -- looks
+            # identical to one bad problem, so without this the loop burns through
+            # the entire queue producing nothing. Observed: 109 straight failures
+            # after an auth token expired mid-run.
+            if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                print(f"\nABORTED: {consecutive_failures} consecutive failures — this is a "
+                      f"run-wide problem, not bad input.\n"
+                      f"  Check auth:  claude -p 'hi' --model haiku\n"
+                      f"  If it fails, run /login in Claude Code, then re-run this command.\n"
+                      f"  Nothing is lost; completed assessments are cached.",
+                      file=sys.stderr)
+                break
             continue
+        consecutive_failures = 0
         cost += usage.get("cost_usd") or 0.0
         result["_meta"] = {"name": name, "model": model, "backend": args.backend,
                            "seconds": round(time.time() - started, 1), "usage": usage}

@@ -91,7 +91,7 @@ def main() -> int:
     elif not args.all:
         ap.error("give --validate, --all, or --report")
 
-    cost = 0.0; agree = dis = 0
+    cost = 0.0; agree = dis = 0; fails = 0
     for i, st in enumerate(todo, 1):
         cached = OUT / f"{st['ref']}.json"
         if cached.exists() and not args.validate:
@@ -99,7 +99,15 @@ def main() -> int:
         try:
             res, c = screen_one(st)
         except Exception as exc:  # noqa: BLE001
-            print(f"  !! {st['ref']}: {type(exc).__name__}", file=sys.stderr); continue
+            print(f"  !! {st['ref']}: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
+            fails += 1
+            if fails >= 5:
+                print("\nABORTED: 5 consecutive failures — run-wide problem, not bad input. "
+                      "Check auth with `claude -p 'hi' --model haiku`, /login if needed, "
+                      "then re-run.", file=sys.stderr)
+                break
+            continue
+        fails = 0
         cost += c
         cached.write_text(json.dumps({**res, "ref": st["ref"]}, indent=2))
 
